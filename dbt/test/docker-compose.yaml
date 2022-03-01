@@ -1,0 +1,25 @@
+version: '3'
+services:
+  dbt:
+    image: fishtownanalytics/dbt:1.0.0
+    entrypoint: ["dbt", "run"]
+    volumes:
+      - ./profiles.yml:/root/.dbt/profiles.yml
+      - ./dbt:/usr/app/dbt
+    working_dir: /usr/app/dbt/pipekit
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:11.5
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: development
+      POSTGRES_DB: dbt
+
+
+networks:
+  default:
+    name: dbt

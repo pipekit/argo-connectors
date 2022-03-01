@@ -1,0 +1,51 @@
+config:
+  send_anonymous_usage_stats: false
+  use_colors: true
+  write_json: true
+  warn_error: true
+  debug: true
+  version_check: true
+  fail_fast: true
+
+
+postgres:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: postgres
+      user: postgres
+      password: development
+      port: 5432
+      dbname: dbt
+      schema: postgres
+      threads: 1
+      keepalives_idle: 0 # default 0, indicating the system default
+      connect_timeout: 10 # default 10 seconds
+      sslmode: disable
+
+
+pipekit:
+  outputs:
+
+    dev:
+      type: postgres
+      threads: 1
+      host: postgres
+      port: 5432
+      user: postgres
+      pass: development
+      dbname: dbt
+      schema: pipekit
+
+    prod:
+      type: postgres
+      threads: 1
+      host: postgres
+      port: 5432
+      user: postgres
+      pass: development
+      dbname: dbt
+      schema: pipekit
+
+  target: dev
