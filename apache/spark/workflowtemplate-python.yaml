@@ -1,0 +1,97 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: spark-data-connector-python
+spec:
+  entrypoint: spark
+  templates:
+    - name: spark
+      inputs:
+        parameters:
+          - name: sparkConnectorName
+            default: spark-job
+          - name: namespace
+          - name: mainApplicationFile
+          - name: pythonVersion
+            default: "3"
+          - name: imagePullSecret
+            default: ""
+          - name: globalImage
+            default: ""
+          - name: driverImage
+            default: ""
+          - name: executorImage
+            default: ""
+          - name: imagePullPolicy
+            default: IfNotPresent
+          - name: globalServiceAccount
+            default: default
+          - name: driverServiceAccount
+            default: ""
+          - name: executorServiceAccount
+            default: ""
+          - name: driverCores
+            default: "1"
+          - name: executorCores
+            default: "1"
+          - name: driverMemory
+            default: "1024m"
+          - name: executorMemory
+            default: "1024m"
+          - name: driverEnvConfigMap
+            default: "driver-env-configmap"
+          - name: executorEnvConfigMap
+            default: "executor-env-configmap"
+          - name: executorInstances
+            default: "1"
+
+          - name: pyFiles
+            default: ""
+          - name: files
+            default: ""
+
+
+      resource:
+        action: create
+        successCondition: status.applicationState.state == COMPLETED
+        failureCondition: status.applicationState.state == FAILED
+        manifest: |
+          apiVersion: "sparkoperator.k8s.io/v1beta2"
+          kind: SparkApplication
+          metadata:
+            generateName: {{inputs.parameters.sparkConnectorName}}-
+            namespace: {{inputs.parameters.namespace}}
+          spec:
+            type: Python
+            pythonVersion: "{{inputs.parameters.pythonVersion}}"
+            mode: cluster
+            imagePullPolicy: {{inputs.parameters.imagePullPolicy}}
+            imagePullSecrets: [ {{inputs.parameters.imagePullSecret}} ]
+            mainApplicationFile: {{inputs.parameters.mainApplicationFile}}
+            sparkVersion: "3.1.1"
+            deps:
+              pyFiles: [ {{inputs.parameters.pyFiles}} ]
+              files: [ {{inputs.parameters.files}} ]
+            driver:
+              image: {{=sprig.default(inputs.parameters.driverImage, inputs.parameters.globalImage)}}
+              cores: {{inputs.parameters.driverCores}}
+              memory: {{inputs.parameters.driverMemory}}
+              serviceAccount: {{=sprig.default(inputs.parameters.driverServiceAccount, inputs.parameters.globalServiceAccount)}}
+              envFrom:
+                - configMapRef:
+                    name: {{inputs.parameters.driverEnvConfigMap}}
+                    optional: true
+              labels:
+                workflows.argoproj.io/workflow: {{workflow.name}}
+            executor:
+              image: {{=sprig.default(inputs.parameters.executorImage, inputs.parameters.globalImage)}}
+              cores: {{inputs.parameters.executorCores}}
+              instances: {{inputs.parameters.executorInstances}}
+              memory: {{inputs.parameters.executorMemory}}
+              serviceAccount: {{=sprig.default(inputs.parameters.executorServiceAccount, inputs.parameters.globalServiceAccount)}}
+              envFrom:
+                - configMapRef:
+                    name: {{inputs.parameters.executorEnvConfigMap}}
+                    optional: true
+              labels:
+                workflows.argoproj.io/workflow: {{workflow.name}}

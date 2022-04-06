@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: spark-workflow-py-
+spec:
+  entrypoint: main
+  templates:
+    - name: main
+      steps:
+        - - name: spark
+            templateRef:
+              name: spark-data-connector-python
+              template: spark
+            arguments:
+              parameters:
+                - name: namespace
+                  value: "default"
+                - name: driverImage
+                  value: "gcr.io/spark-operator/spark-py:v3.1.1"
+                - name: executorImage
+                  value: "gcr.io/spark-operator/spark-py:v3.1.1"
+                - name: mainApplicationFile
+                  value: "local:///opt/spark/examples/src/main/python/pi.py"
+                - name: globalServiceAccount
+                  value: "spark-operator-spark"
