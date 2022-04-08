@@ -51,7 +51,11 @@ spec:
 
           - name: jars
             default: ""
+          - name: jarsDownloadDir
+            default: ""
           - name: files
+            default: ""
+          - name: filesDownloadDir
             default: ""
           - name: repositories
             default: ""
@@ -81,7 +85,9 @@ spec:
             sparkVersion: "3.1.1"
             deps:
               jars: [ {{inputs.parameters.jars}} ]
+              jarsDownloadDir: {{inputs.parameters.jarsDownloadDir}}
               files: [ {{inputs.parameters.files}} ]
+              filesDownloadDir: {{inputs.parameters.filesDownloadDir}}
               repositories: [ {{inputs.parameters.repositories}} ]
               packages: [ {{inputs.parameters.packages}} ]
               excludePackages: [ {{inputs.parameters.excludePackages}} ]
