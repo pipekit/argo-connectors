@@ -2,6 +2,18 @@
 
 Apache Spark data connector is implemented using Argo `WorkflowTemplate` and  `ClusterWorkflowTemplate` feature. Implementing it this way allows a user to simply reference these templates inside larger workflow like any other Argo Workflow step/task. This template internally is responsible for submitting and waiting for the execution to finish, which allows Argo to be aware of the execution result. Spark data connector relies on `Spark Operator` for Spark job scheduling, so it can only run Spark job in Kubernetes.
 
+## Table of Contents
+- [Apache Spark data connector for Argo Workflows](#apache-spark-data-connector-for-argo-workflows)
+    * [Table of Contents](#table-of-contents)
+    * [Requirements](#requirements)
+    * [How to use Apache Spark data connector](#how-to-use-apache-spark-data-connector)
+    * [Configuration](#configuration)
+        + [Java/Scala Configuration](#java-scala-configuration)
+        + [Python Configuration](#python-configuration)
+        + [General Configuration](#general-configuration)
+        + [Spark UI](#spark-ui)
+
+
 ## Requirements
 1. Spark on k8s operator ([link](https://github.com/GoogleCloudPlatform/spark-on-k8s-operator)) - admission webhook must be enabled
 2. Argo service account must be able to manipulate with SparkApplication CRD. If Argo and Spark jobs are running in different namespaces you must create `ClusterRole` and `ClusterRoleBinding` otherwise `Role` and `RoleBinding` is enough. Example:
