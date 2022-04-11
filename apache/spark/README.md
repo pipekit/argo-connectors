@@ -1,10 +1,10 @@
 # Apache Spark data connector for Argo Workflows
 
-Apache Spark data connector is implemented using Argo `WorkflowTemplate` and  `ClusterWorkflowTemplate` feature. Implementing it this way allows a user to simply reference these templates inside larger workflow like any other Argo Workflow step/task. This template internaly is responsible for submitting and waiting for the execution to finish, which allows Argo to be aware of the execution result. Spark data connector relies on `Spark Operator` for Spark job scheduling so it can only run Spark job in Kubernetes.
+Apache Spark data connector is implemented using Argo `WorkflowTemplate` and  `ClusterWorkflowTemplate` feature. Implementing it this way allows a user to simply reference these templates inside larger workflow like any other Argo Workflow step/task. This template internally is responsible for submitting and waiting for the execution to finish, which allows Argo to be aware of the execution result. Spark data connector relies on `Spark Operator` for Spark job scheduling, so it can only run Spark job in Kubernetes.
 
 ## Requirements
 1. Spark on k8s operator ([link](https://github.com/GoogleCloudPlatform/spark-on-k8s-operator)) - admission webhook must be enabled
-2. Argo service account must be able to manipulate with SparkApplication CRD. If Argo and Spark jobs are running in different namespaces you must create `ClusterRole` and `ClusterRoleBinding`. Example:
+2. Argo service account must be able to manipulate with SparkApplication CRD. If Argo and Spark jobs are running in different namespaces you must create `ClusterRole` and `ClusterRoleBinding` otherwise `Role` and `RoleBinding` is enough. Example:
 
 ``` yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -34,7 +34,7 @@ kubectl create clusterrolebinding argo-spark-cluster-role-binding \
 
 ## How to use Apache Spark data connector
 
-You first need to install all prerequsites (like Spark operator and Argo service account role/role binding). After that, you need to add `WorkflowTemplate` /`ClusterWorkflowTemplate` to Argo Workflows. Now, templates are in Argo and you can use them inside your workflows. Check `example` folder for examples (note: you may need to change namespace and service account).
+You first need to install all prerequisites (like Spark operator and Argo - Spark service account role/role binding). After that, you need to add `WorkflowTemplate` /`ClusterWorkflowTemplate` to Argo Workflows. Now, templates are in Argo and you can use them inside your workflows. Check `example` folder for examples (note: you may need to change namespace and service account).
 
 
 ## Configuration
@@ -52,7 +52,7 @@ There are four templates, two for JVM languages (Java/Scala) and two for Python.
 | jars | No | empty | jars is a list of JAR files the Spark application depends on. It must be specified as a single string where each entry is separated by comma. Jar can be inside container or can be downloaded from HTTP server, HDFS, AWS S3 or Google Cloud Storage. Example: `"local:///opt/spark-jars/one-jar.jar,gs://spark-data/other.jar" ` |
 |jarsDownloadDir|No|empty|jarsDownloadDir is used for specifying the location in the driver and executor pods where jars should be downloaded to|
 |repositories|No|empty|repositories is a list of additional remote repositories to search for the maven coordinate given with the “packages” option. It must be specified as a single string where each entry is separated by comma. Example: `https://repository.example.com/prod, https://repository.example2.com/prod`|
-|packages|No|empty|packages is a list of maven coordinates of jars to include on the driver and executor classpaths. This will search the local maven repo, then maven central and any additional remote repositories given by the `repositories` option. It must be specified as a single string where each entry is separated by comma. Each package should be in the form `groupId:artifactId:version`. Example: `groupId:artifactId1:version,groupId:artifactId2:version`|
+|packages|No|empty|packages is a list of maven coordinates of jars to include on the driver and executor classpath. This will search the local maven repo, then maven central and any additional remote repositories given by the `repositories` option. It must be specified as a single string where each entry is separated by comma. Each package should be in the form `groupId:artifactId:version`. Example: `groupId:artifactId1:version,groupId:artifactId2:version`|
 |excludePackages|No|empty|excludePackages is a list of `groupId:artifactId`, to exclude while resolving the dependencies provided in Packages to avoid dependency conflicts. It must be specified as a single string where each entry is separated by comma. Example: `groupId1:artifactId1,groupId2:artifactId2`|
 
 
@@ -91,7 +91,7 @@ There are four templates, two for JVM languages (Java/Scala) and two for Python.
 
 
 ### Spark UI
-Spark UI is available during Spark execution and is exposed using k8s service (\<workflow-name>-ui-svc) on port 4040. You can use `kubectl port-forward` function or you can expose it using ingress/nodeport.
+Spark UI is available during Spark execution and is exposed using k8s service (\<workflow-name>-ui-svc) on port 4040. You can use `kubectl port-forward` function, or you can expose it using Ingress/NodePort.
 Example:
 ```
 kubectl port-forward svc/<workflow-name>-ui-svc 4040:4040
