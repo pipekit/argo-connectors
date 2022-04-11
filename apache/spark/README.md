@@ -1,6 +1,6 @@
 # Apache Spark data connector for Argo Workflows
 
-Apache Spark data connector is implemented using Argo `WorkflowTemplate` and  `ClusterWorkflowTemplate` feature. Implementing it this way allows a user to simply reference these templates inside larger workflow like any other Argo Workflow step/task. This template internally is responsible for submitting and waiting for the execution to finish, which allows Argo to be aware of the execution result. Spark data connector relies on `Spark Operator` for Spark job scheduling, so it can only run Spark job in Kubernetes.
+Apache Spark data connector allow users to submit Spark jobs from Argo Workflows. This data connector is implemented using Argo `WorkflowTemplate` and  `ClusterWorkflowTemplate` feature. Implementing it this way allows a user to simply reference these templates inside larger workflow like any other Argo Workflow step/task. Internally, it is responsible for submitting and waiting for the execution to finish, which allows Argo to be aware of the execution result. Spark data connector relies on `Spark Operator` for Spark job scheduling, so it can only run Spark jobs in Kubernetes.
 
 ## Table of Contents
 - [Apache Spark data connector for Argo Workflows](#apache-spark-data-connector-for-argo-workflows)
