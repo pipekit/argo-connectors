@@ -1,18 +1,45 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: hello-world-
-  labels:
-    workflows.argoproj.io/archive-strategy: "false"
-  annotations:
-    workflows.argoproj.io/description: |
-      This is a simple hello world example.
-      You can also run it in Python: https://couler-proj.github.io/couler/examples/#hello-world
+  generateName: argo-connectors-ci-
 spec:
-  entrypoint: whalesay
+  entrypoint: main
   templates:
-    - name: whalesay
-      container:
-        image: docker/whalesay:latest
-        command: [cowsay]
-        args: ["hello darko"]
+    - name: main
+      dag:
+        tasks:
+          - name: test-spark-connector-jvm
+            templateRef:
+              name: spark-data-connector-jvm
+              template: spark
+            arguments:
+              parameters:
+                - name: type
+                  value: "Scala"
+                - name: mainClass
+                  value: "org.apache.spark.examples.SparkPi"
+                - name: globalImage
+                  value: "gcr.io/spark-operator/spark:v3.1.1"
+                - name: mainApplicationFile
+                  value: "local:///opt/spark/examples/jars/spark-examples_2.12-3.1.1.jar"
+                - name: globalServiceAccount
+                  value: ""
+                - name: namespace
+                  value: ""
+
+          - name: test-spark-connector-python
+            depends: "test-spark-connector-jvm"
+            templateRef:
+              name: spark-data-connector-python
+              template: spark
+            arguments:
+              parameters:
+                - name: globalImage
+                  value: "gcr.io/spark-operator/spark-py:v3.1.1"
+                - name: mainApplicationFile
+                  value: "local:///opt/spark/examples/src/main/python/pi.py"
+                - name: globalServiceAccount
+                  value: ""
+                - name: namespace
+                  value: ""
+
