@@ -1,0 +1,17 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterWorkflowTemplate
+metadata:
+  name: spark-delete-resource
+spec:
+  entrypoint: spark-delete
+  templates:
+    - name: spark-delete
+      inputs:
+        parameters:
+          - name: spark-job-name
+          - name: namespace
+      resource:
+        action: delete
+        flags: [
+          "sparkapplication", "{{inputs.parameters.spark-job-name}}", "--namespace", "{{inputs.parameters.namespace}}"
+        ]

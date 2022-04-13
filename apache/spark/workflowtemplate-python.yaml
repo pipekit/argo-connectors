@@ -49,6 +49,14 @@ spec:
             default: ""
           - name: files
             default: ""
+      outputs:
+        parameters:
+          - name: spark-job-name
+            valueFrom:
+              jsonPath: '{.metadata.name}'
+          - name: spark-job-namespace
+            valueFrom:
+              jsonPath: '{.metadata.namespace}'
 
 
       resource:

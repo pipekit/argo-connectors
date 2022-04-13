@@ -108,3 +108,6 @@ Example:
 ```
 kubectl port-forward svc/<workflow-name>-ui-svc 4040:4040
 ```
+
+### Spark resources cleanup
+After execution, Spark driver pod and Kubernetes service are staying in the Kubernetes cluster until GC deletes them. If you want to remove Spark job immediately after execution, you can use template `spark-resource-delete` from `workflowtemplate-spark-resource-cleanup.yaml / clusterworkflowtemplate-spark-resource-cleanup.yaml`. You can check example from the `example` folder.
