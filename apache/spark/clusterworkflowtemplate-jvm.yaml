@@ -105,11 +105,11 @@ spec:
               excludePackages: [ {{inputs.parameters.excludePackages}} ]
             driver:
               image: {{=sprig.default(inputs.parameters.driverImage, inputs.parameters.globalImage)}}
-              coreRequest: {{inputs.parameters.driverCoreRequest}}
-              coreLimit: {{inputs.parameters.driverCoreLimit}}
+              coreRequest: "{{inputs.parameters.driverCoreRequest}}"
+              coreLimit: "{{inputs.parameters.driverCoreLimit}}"
               memory: {{inputs.parameters.driverMemory}}
               serviceAccount: {{=sprig.default(inputs.parameters.driverServiceAccount, inputs.parameters.globalServiceAccount)}}
-              javaOptions: {{inputs.parameters.driverJvmOptions}}   
+              javaOptions: "{{inputs.parameters.driverJvmOptions}}"
               envFrom:
                 - configMapRef:
                     name: {{inputs.parameters.driverEnvConfigMap}}
@@ -118,12 +118,12 @@ spec:
                 workflows.argoproj.io/workflow: {{workflow.name}}
             executor:
               image: {{=sprig.default(inputs.parameters.executorImage, inputs.parameters.globalImage)}}
-              coreRequest: {{inputs.parameters.executorCoreRequest}}
-              coreLimit: {{inputs.parameters.executorCoreLimit}}
+              coreRequest: "{{inputs.parameters.executorCoreRequest}}"
+              coreLimit: "{{inputs.parameters.executorCoreLimit}}"
               instances: {{inputs.parameters.executorInstances}}
               memory: {{inputs.parameters.executorMemory}}
               serviceAccount: {{=sprig.default(inputs.parameters.executorServiceAccount, inputs.parameters.globalServiceAccount)}}
-              javaOptions: {{inputs.parameters.executorJvmOptions}}
+              javaOptions: "{{inputs.parameters.executorJvmOptions}}"
               envFrom:
                 - configMapRef:
                     name: {{inputs.parameters.executorEnvConfigMap}}
