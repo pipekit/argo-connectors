@@ -4,6 +4,7 @@ metadata:
   generateName: argo-connectors-ci-
 spec:
   entrypoint: main
+  serviceAccountName: argo
   templates:
     - name: main
       dag:
