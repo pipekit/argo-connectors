@@ -1,54 +1,18 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: argo-connectors-ci-
+  generateName: hello-world-
+  labels:
+    workflows.argoproj.io/archive-strategy: "false"
+  annotations:
+    workflows.argoproj.io/description: |
+      This is a simple hello world example.
+      You can also run it in Python: https://couler-proj.github.io/couler/examples/#hello-world
 spec:
-  entrypoint: main
-  serviceAccountName: argo
+  entrypoint: whalesay
   templates:
-    - name: main
-      dag:
-        tasks:
-          - name: test-spark-connector-jvm
-            templateRef:
-              name: spark-data-connector-jvm
-              template: spark
-            arguments:
-              parameters:
-                - name: type
-                  value: "Scala"
-                - name: mainClass
-                  value: "org.apache.spark.examples.SparkPi"
-                - name: globalImage
-                  value: "gcr.io/spark-operator/spark:v3.1.1"
-                - name: mainApplicationFile
-                  value: "local:///opt/spark/examples/jars/spark-examples_2.12-3.1.1.jar"
-                - name: globalServiceAccount
-                  value: "spark-operator-spark"
-                - name: namespace
-                  value: "455b96eb-7e7a-4734-926a-7529a95d757b"
-                - name: driverCoreRequest
-                  value: "500m"
-                - name: executorCoreRequest
-                  value: "500m"
-
-          - name: test-spark-connector-python
-            depends: "test-spark-connector-jvm"
-            templateRef:
-              name: spark-data-connector-python
-              template: spark
-            arguments:
-              parameters:
-                - name: globalImage
-                  value: "gcr.io/spark-operator/spark-py:v3.1.1"
-                - name: mainApplicationFile
-                  value: "local:///opt/spark/examples/src/main/python/pi.py"
-                - name: globalServiceAccount
-                  value: "spark-operator-spark"
-                - name: namespace
-                  value: "455b96eb-7e7a-4734-926a-7529a95d757b"
-                - name: driverCoreRequest
-                  value: "500m"
-                - name: executorCoreRequest
-                  value: "500m"
-
+    - name: whalesay
+      container:
+        image: docker/whalesay:latest
+        command: [cowsay]
+        args: ["hello darko"]
