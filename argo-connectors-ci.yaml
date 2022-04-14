@@ -23,9 +23,13 @@ spec:
                 - name: mainApplicationFile
                   value: "local:///opt/spark/examples/jars/spark-examples_2.12-3.1.1.jar"
                 - name: globalServiceAccount
-                  value: ""
+                  value: "spark-operator-spark"
                 - name: namespace
-                  value: ""
+                  value: "455b96eb-7e7a-4734-926a-7529a95d757b"
+                - name: driverCoreRequest
+                  value: "500m"
+                - name: executorCoreRequest
+                  value: "500m"
 
           - name: test-spark-connector-python
             depends: "test-spark-connector-jvm"
@@ -39,7 +43,11 @@ spec:
                 - name: mainApplicationFile
                   value: "local:///opt/spark/examples/src/main/python/pi.py"
                 - name: globalServiceAccount
-                  value: ""
+                  value: "spark-operator-spark"
                 - name: namespace
-                  value: ""
+                  value: "455b96eb-7e7a-4734-926a-7529a95d757b"
+                - name: driverCoreRequest
+                  value: "500m"
+                - name: executorCoreRequest
+                  value: "500m"
 
