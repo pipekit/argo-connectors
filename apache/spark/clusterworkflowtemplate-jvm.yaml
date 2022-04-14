@@ -30,10 +30,14 @@ spec:
             default: ""
           - name: executorServiceAccount
             default: ""
-          - name: driverCores
+          - name: driverCoreRequest
             default: "1"
-          - name: executorCores
+          - name: executorCoreRequest
             default: "1"
+          - name: driverCoreLimit
+            default: "99999"
+          - name: executorCoreLimit
+            default: "99999"
           - name: driverMemory
             default: "1024m"
           - name: executorMemory
@@ -101,7 +105,8 @@ spec:
               excludePackages: [ {{inputs.parameters.excludePackages}} ]
             driver:
               image: {{=sprig.default(inputs.parameters.driverImage, inputs.parameters.globalImage)}}
-              cores: {{inputs.parameters.driverCores}}
+              coreRequest: {{inputs.parameters.driverCoreRequest}}
+              coreLimit: {{inputs.parameters.driverCoreLimit}}
               memory: {{inputs.parameters.driverMemory}}
               serviceAccount: {{=sprig.default(inputs.parameters.driverServiceAccount, inputs.parameters.globalServiceAccount)}}
               javaOptions: {{inputs.parameters.driverJvmOptions}}   
@@ -113,7 +118,8 @@ spec:
                 workflows.argoproj.io/workflow: {{workflow.name}}
             executor:
               image: {{=sprig.default(inputs.parameters.executorImage, inputs.parameters.globalImage)}}
-              cores: {{inputs.parameters.executorCores}}
+              coreRequest: {{inputs.parameters.executorCoreRequest}}
+              coreLimit: {{inputs.parameters.executorCoreLimit}}
               instances: {{inputs.parameters.executorInstances}}
               memory: {{inputs.parameters.executorMemory}}
               serviceAccount: {{=sprig.default(inputs.parameters.executorServiceAccount, inputs.parameters.globalServiceAccount)}}
