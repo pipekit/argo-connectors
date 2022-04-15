@@ -76,7 +76,6 @@ spec:
             valueFrom:
               jsonPath: '{.metadata.namespace}'
 
-
       resource:
         action: create
         successCondition: status.applicationState.state == COMPLETED
