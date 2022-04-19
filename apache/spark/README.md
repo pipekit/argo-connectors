@@ -12,6 +12,7 @@ Apache Spark data connector allow users to submit Spark jobs from Argo Workflows
         + [Python Configuration](#python-configuration)
         + [General Configuration](#general-configuration)
         + [Spark UI](#spark-ui)
+        + [Spark resources cleanup](#spark-resources-cleanup)
 
 
 ## Requirements
@@ -37,10 +38,19 @@ rules:
 
 
 This example creates cluster role binding for `default` service account in `argo` namespace. This service account is later used for Argo Workflow and Spark job scheduling:
-```
-kubectl create clusterrolebinding argo-spark-cluster-role-binding \
---clusterrole=argo-spark-clusterrole \
---serviceaccount=argo:default
+```yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: argo-spark-cluster-role-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: argo-spark-clusterrole
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: argo
 ```
 
 
