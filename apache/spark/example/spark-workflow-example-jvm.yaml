@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: spark-workflow-scala-
+spec:
+  entrypoint: main
+  templates:
+    - name: main
+      steps:
+        - - name: spark
+            templateRef:
+              name: spark-data-connector-jvm
+              template: spark
+            arguments:
+              parameters:
+                - name: type
+                  value: "Scala"
+                - name: mainClass
+                  value: "org.apache.spark.examples.SparkPi"
+                - name: namespace
+                  value: "default"
+                - name: driverImage
+                  value: "gcr.io/spark-operator/spark:v3.1.1"
+                - name: executorImage
+                  value: "gcr.io/spark-operator/spark:v3.1.1"
+                - name: mainApplicationFile
+                  value: "local:///opt/spark/examples/jars/spark-examples_2.12-3.1.1.jar"
