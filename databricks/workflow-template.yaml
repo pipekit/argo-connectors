@@ -98,6 +98,9 @@ spec:
       - name: databricks-secret-name
         value: "databricks-secret"
         description: "Name of the K8s Secret containing DATABRICKS_HOST and DATABRICKS_TOKEN"
+      - name: connector-image
+        value: "ghcr.io/pipekit/databricks-connector:0.0.2"
+        description: "Container image for the Databricks connector"
 
     outputs:
       parameters:
@@ -166,6 +169,8 @@ spec:
             value: "{{inputs.parameters.email-notifications}}"
           - name: databricks-secret-name
             value: "{{inputs.parameters.databricks-secret-name}}"
+          - name: connector-image
+            value: "{{inputs.parameters.connector-image}}"
 
     - - name: monitor
         template: monitor
@@ -175,6 +180,8 @@ spec:
             value: "{{steps.submit.outputs.result}}"
           - name: databricks-secret-name
             value: "{{inputs.parameters.databricks-secret-name}}"
+          - name: connector-image
+            value: "{{inputs.parameters.connector-image}}"
 
     - - name: get-output
         template: get-output
@@ -184,6 +191,8 @@ spec:
             value: "{{steps.submit.outputs.result}}"
           - name: databricks-secret-name
             value: "{{inputs.parameters.databricks-secret-name}}"
+          - name: connector-image
+            value: "{{inputs.parameters.connector-image}}"
 
   - name: run-existing-job
     inputs:
@@ -213,6 +222,9 @@ spec:
       - name: databricks-secret-name
         value: "databricks-secret"
         description: "Name of the K8s Secret containing DATABRICKS_HOST and DATABRICKS_TOKEN"
+      - name: connector-image
+        value: "ghcr.io/pipekit/databricks-connector:0.0.2"
+        description: "Container image for the Databricks connector"
 
     outputs:
       parameters:
@@ -251,6 +263,8 @@ spec:
             value: "{{inputs.parameters.spark-submit-params}}"
           - name: databricks-secret-name
             value: "{{inputs.parameters.databricks-secret-name}}"
+          - name: connector-image
+            value: "{{inputs.parameters.connector-image}}"
 
     - - name: monitor
         template: monitor
@@ -260,6 +274,8 @@ spec:
             value: "{{steps.start.outputs.result}}"
           - name: databricks-secret-name
             value: "{{inputs.parameters.databricks-secret-name}}"
+          - name: connector-image
+            value: "{{inputs.parameters.connector-image}}"
 
     - - name: get-output
         template: get-output
@@ -269,6 +285,8 @@ spec:
             value: "{{steps.start.outputs.result}}"
           - name: databricks-secret-name
             value: "{{inputs.parameters.databricks-secret-name}}"
+          - name: connector-image
+            value: "{{inputs.parameters.connector-image}}"
 
   # --- Sub-Templates ---
 
@@ -297,8 +315,9 @@ spec:
       - name: job-parameters
       - name: email-notifications
       - name: databricks-secret-name
+      - name: connector-image
     container:
-      image: ghcr.io/pipekit/databricks-connector:v0.0.2
+      image: "{{inputs.parameters.connector-image}}"
       command: ["/databricks-connector", "submit"]
       args:
       - "--code-path={{inputs.parameters.code-path}}"
@@ -355,8 +374,9 @@ spec:
       - name: spark-submit-params
         value: ""
       - name: databricks-secret-name
+      - name: connector-image
     container:
-      image: ghcr.io/pipekit/databricks-connector:v0.0.2
+      image: "{{inputs.parameters.connector-image}}"
       command: ["/databricks-connector", "start"]
       args:
       - "--job-id={{inputs.parameters.job-id}}"
@@ -391,8 +411,9 @@ spec:
       - name: databricks-secret-name
       - name: poll-interval
         value: "10s"
+      - name: connector-image
     container:
-      image: ghcr.io/pipekit/databricks-connector:v0.0.2
+      image: "{{inputs.parameters.connector-image}}"
       command: ["/databricks-connector", "monitor"]
       args:
       - "--run-id={{inputs.parameters.run-id}}"
@@ -418,6 +439,7 @@ spec:
       parameters:
       - name: run-id
       - name: databricks-secret-name
+      - name: connector-image
     outputs:
       parameters:
       - name: run-url
@@ -434,7 +456,7 @@ spec:
         valueFrom:
           path: /tmp/json
     container:
-      image: ghcr.io/pipekit/databricks-connector:v0.0.2
+      image: "{{inputs.parameters.connector-image}}"
       command: ["/databricks-connector", "get-output"]
       args:
       - "--run-id={{inputs.parameters.run-id}}"
@@ -463,8 +485,9 @@ spec:
       parameters:
       - name: run-id
       - name: databricks-secret-name
+      - name: connector-image
     container:
-      image: ghcr.io/pipekit/databricks-connector:v0.0.2
+      image: "{{inputs.parameters.connector-image}}"
       command: ["/databricks-connector", "cancel"]
       args:
       - "--run-id={{inputs.parameters.run-id}}"
