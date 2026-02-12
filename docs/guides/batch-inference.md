@@ -28,8 +28,66 @@ graph LR
 
 ## Basic Batch Inference Workflow
 
-### Using Databricks
+{% tabs %}
+{% tab title="Python (Hera)" %}
+```python
+from hera.workflows import Workflow, Parameter, WorkflowTemplateRef, Steps
 
+with Workflow(
+    generate_name="batch-inference-",
+    namespace="default",
+    arguments=[
+        Parameter(name="model-uri", value="models:/production-model/latest"),
+        Parameter(name="input-path", value="s3://data-bucket/input/2024-01-01"),
+        Parameter(name="output-path", value="s3://data-bucket/predictions/2024-01-01"),
+    ]
+) as w:
+    with Steps(name="main") as s:
+        # Step 1: Load and score data
+        WorkflowTemplateRef(
+            name="batch-score",
+            template_ref="databricks-connector",
+            template="run-job",
+            arguments=[
+                Parameter(name="code-path", value="/Users/ml-team/batch-inference"),
+                Parameter(name="task-type", value="notebook"),
+                Parameter(name="cluster-mode", value="New"),
+                
+                # Use memory-optimized instances for large datasets
+                Parameter(name="new-cluster-spark-version", value="13.3.x-scala2.12"),
+                Parameter(name="new-cluster-node-type", value="r5.4xlarge"),
+                Parameter(name="scaling-type", value="autoscale"),
+                Parameter(name="min-workers", value="5"),
+                Parameter(name="max-workers", value="20"),
+                
+                # Pass workflow parameters to notebook
+                Parameter(
+                    name="args",
+                    value="{{workflow.parameters.model-uri}},{{workflow.parameters.input-path}},{{workflow.parameters.output-path}}"
+                ),
+            ]
+        )
+        
+        # Step 2: Validate results
+        s.next()
+        WorkflowTemplateRef(
+            name="validate-output",
+            template_ref="databricks-connector",
+            template="run-job",
+            arguments=[
+                Parameter(name="code-path", value="/Users/ml-team/validate-predictions"),
+                Parameter(name="task-type", value="notebook"),
+                Parameter(name="cluster-mode", value="Serverless"),
+                Parameter(name="args", value="{{workflow.parameters.output-path}}"),
+            ]
+        )
+
+# Submit to cluster
+w.create()
+```
+{% endtab %}
+
+{% tab title="YAML" %}
 ```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
@@ -76,8 +134,8 @@ spec:
                   value: "20"
                 
                 # Pass workflow parameters to notebook
-                - name: notebook-params
-                  value: "model_uri={{workflow.parameters.model-uri}},input_path={{workflow.parameters.input-path}},output_path={{workflow.parameters.output-path}}"
+                - name: args
+                  value: "{{workflow.parameters.model-uri}},{{workflow.parameters.input-path}},{{workflow.parameters.output-path}}"
         
         # Step 2: Validate results
         - - name: validate-output
@@ -95,6 +153,8 @@ spec:
                 - name: args
                   value: "{{workflow.parameters.output-path}}"
 ```
+{% endtab %}
+{% endtabs %}
 
 ## Databricks Notebook: Batch Inference
 
@@ -230,6 +290,84 @@ predictions_final.groupBy(
 
 Score data with multiple model versions for A/B testing or ensemble predictions:
 
+{% tabs %}
+{% tab title="Python (Hera)" %}
+```python
+from hera.workflows import Workflow, Parameter, WorkflowTemplateRef, Steps
+
+with Workflow(
+    generate_name="multi-model-inference-",
+    namespace="default",
+    arguments=[
+        Parameter(name="input-path", value="s3://data-bucket/input/2024-01-01"),
+        Parameter(name="output-base-path", value="s3://data-bucket/predictions/2024-01-01"),
+    ]
+) as w:
+    with Steps(name="main") as s:
+        # Score with multiple models in parallel
+        with s.parallel():
+            WorkflowTemplateRef(
+                name="score-model-v1",
+                template_ref="databricks-connector",
+                template="run-job",
+                arguments=[
+                    Parameter(name="code-path", value="/Users/ml-team/batch-inference"),
+                    Parameter(name="task-type", value="notebook"),
+                    Parameter(name="cluster-mode", value="New"),
+                    Parameter(name="new-cluster-spark-version", value="13.3.x-scala2.12"),
+                    Parameter(name="new-cluster-node-type", value="r5.2xlarge"),
+                    Parameter(name="scaling-type", value="autoscale"),
+                    Parameter(name="min-workers", value="5"),
+                    Parameter(name="max-workers", value="15"),
+                    Parameter(
+                        name="args",
+                        value="models:/churn-model/1,{{workflow.parameters.input-path}},{{workflow.parameters.output-base-path}}/v1"
+                    ),
+                ]
+            )
+            
+            WorkflowTemplateRef(
+                name="score-model-v2",
+                template_ref="databricks-connector",
+                template="run-job",
+                arguments=[
+                    Parameter(name="code-path", value="/Users/ml-team/batch-inference"),
+                    Parameter(name="task-type", value="notebook"),
+                    Parameter(name="cluster-mode", value="New"),
+                    Parameter(name="new-cluster-spark-version", value="13.3.x-scala2.12"),
+                    Parameter(name="new-cluster-node-type", value="r5.2xlarge"),
+                    Parameter(name="scaling-type", value="autoscale"),
+                    Parameter(name="min-workers", value="5"),
+                    Parameter(name="max-workers", value="15"),
+                    Parameter(
+                        name="args",
+                        value="models:/churn-model/2,{{workflow.parameters.input-path}},{{workflow.parameters.output-base-path}}/v2"
+                    ),
+                ]
+            )
+        
+        # Compare predictions
+        s.next()
+        WorkflowTemplateRef(
+            name="compare-models",
+            template_ref="databricks-connector",
+            template="run-job",
+            arguments=[
+                Parameter(name="code-path", value="/Users/ml-team/compare-predictions"),
+                Parameter(name="task-type", value="notebook"),
+                Parameter(name="cluster-mode", value="Serverless"),
+                Parameter(
+                    name="args",
+                    value="{{workflow.parameters.output-base-path}}/v1,{{workflow.parameters.output-base-path}}/v2"
+                ),
+            ]
+        )
+
+w.create()
+```
+{% endtab %}
+
+{% tab title="YAML" %}
 ```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
@@ -314,12 +452,126 @@ spec:
                 - name: args
                   value: "{{workflow.parameters.output-base-path}}/v1,{{workflow.parameters.output-base-path}}/v2"
 ```
+{% endtab %}
+{% endtabs %}
 
-## Using Apache Spark for Inference
+## Best Practices
 
-For workloads that don't require Databricks features, use the Spark connector:
+### 1. Optimize Cluster Configuration
 
+**For Large Datasets** (100GB+):
+- Use memory-optimized instances (`r5` family)
+- Enable autoscaling for cost efficiency
+- Use spot instances for non-critical workloads
+
+{% tabs %}
+{% tab title="Python (Hera)" %}
+```python
+arguments=[
+    Parameter(name="new-cluster-node-type", value="r5.4xlarge"),
+    Parameter(name="scaling-type", value="autoscale"),
+    Parameter(name="min-workers", value="10"),
+    Parameter(name="max-workers", value="50"),
+    Parameter(name="availability", value="SPOT"),
+]
+```
+{% endtab %}
+
+{% tab title="YAML" %}
 ```yaml
-apiVersion: argoproj.io/v1alpha1
-kind: Workflow
-metadata:
+- name: new-cluster-node-type
+  value: "r5.4xlarge"
+- name: scaling-type
+  value: "autoscale"
+- name: min-workers
+  value: "10"
+- name: max-workers
+  value: "50"
+- name: availability
+  value: "SPOT"
+```
+{% endtab %}
+{% endtabs %}
+
+### 2. Handle Failures Gracefully
+
+Use workflow retry policies and error handling:
+
+{% tabs %}
+{% tab title="Python (Hera)" %}
+```python
+from hera.workflows import Workflow, RetryStrategy
+
+with Workflow(
+    generate_name="batch-inference-",
+    namespace="default"
+) as w:
+    # Add retry strategy
+    retry_strategy = RetryStrategy(
+        limit=3,
+        retry_policy="Always",
+        backoff={
+            "duration": "1m",
+            "factor": 2,
+            "max_duration": "10m"
+        }
+    )
+    
+    with Steps(name="main") as s:
+        WorkflowTemplateRef(
+            name="batch-score",
+            template_ref="databricks-connector",
+            template="run-job",
+            retry_strategy=retry_strategy,
+            arguments=[
+                # ... parameters
+            ]
+        )
+```
+{% endtab %}
+
+{% tab title="YAML" %}
+```yaml
+templates:
+  - name: main
+    steps:
+      - - name: batch-score
+          templateRef:
+            name: databricks-connector
+            template: run-job
+          retryStrategy:
+            limit: 3
+            retryPolicy: Always
+            backoff:
+              duration: "1m"
+              factor: 2
+              maxDuration: "10m"
+```
+{% endtab %}
+{% endtabs %}
+
+### 3. Monitor Progress
+
+Track scoring progress and performance:
+
+```python
+# In your Databricks notebook
+from pyspark.sql.functions import current_timestamp
+
+# Log progress
+print(f"Processing started: {current_timestamp()}")
+print(f"Total records to score: {df.count():,}")
+
+# Track batch progress
+checkpoint_dir = f"{output_path}/_checkpoints"
+df.write.mode("overwrite").parquet(checkpoint_dir)
+
+print(f"Checkpoint saved at: {checkpoint_dir}")
+```
+
+## Next Steps
+
+- [Feature Engineering Guide](feature-engineering.md) - Prepare features for scoring
+- [Model Training Guide](model-training.md) - Train models for batch inference
+- [Multi-Step Pipelines](multi-step-pipelines.md) - Build end-to-end ML workflows
+- [Databricks Examples](../connectors/databricks/hera-examples.md) - More Databricks patterns

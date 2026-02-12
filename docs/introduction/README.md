@@ -1,6 +1,8 @@
 # What are Argo Connectors?
 
-Argo Connectors is a curated library of reusable WorkflowTemplates and ClusterWorkflowTemplates that enable you to integrate third-party data tools into your Argo Workflows without writing custom code.
+Argo Connectors is an **open-source, community-driven hub** of reusable WorkflowTemplates and ClusterWorkflowTemplates that enable you to integrate third-party data tools into your Argo Workflows without writing custom code.
+
+**Think of it as the "Docker Hub for Argo Workflows"** - a central marketplace where the community discovers, shares, and maintains standardized integrations to popular data platforms.
 
 ## The Problem
 
@@ -20,7 +22,25 @@ Argo Connectors provides pre-built, production-ready integrations that:
 - **Enable Best Practices**: Built-in error handling, monitoring, and resource management
 - **Support Multiple Interfaces**: Use with YAML or Python (via Hera SDK)
 
-## How It Works
+## The Community Model
+
+### Open Contribution
+Anyone can contribute connectors! Whether you're integrating with a popular platform like Snowflake or a niche internal tool, the community benefits from your contribution.
+
+### Shared Maintenance
+Popular connectors are maintained collectively by the community, ensuring they stay up-to-date with platform changes and evolving best practices.
+
+### Quality Standards
+All connectors follow shared standards for:
+- Parameter naming conventions
+- Error handling patterns
+- Documentation requirements
+- Testing coverage
+
+### Discovery & Reuse
+Browse the connector hub to find integrations for your stack - or contribute missing ones for others to use.
+
+## How Connectors Work
 
 Argo Connectors leverage Argo Workflows' native [WorkflowTemplate](https://argo-workflows.readthedocs.io/en/latest/workflow-templates/) feature to create reusable, parameterized workflow components.
 
@@ -136,16 +156,44 @@ with Workflow(generate_name="pipeline-") as w:
 
 | Feature | Argo Connectors | Custom Integration | Platform-Specific Operators |
 |---------|----------------|-------------------|----------------------------|
+| **Built By** | Community | Your team | Platform vendor |
 | **Installation** | Single YAML apply | Custom development | Operator deployment + CRDs |
-| **Maintenance** | Centrally maintained | Each team maintains | Operator version management |
+| **Maintenance** | Community-maintained | Each team maintains | Operator version management |
+| **Discoverability** | Central hub | Tribal knowledge | Per-platform docs |
 | **Argo Integration** | Native WorkflowTemplates | Custom steps/containers | External CRDs |
-| **Learning Curve** | Standard Argo patterns | Custom patterns per team | New APIs to learn |
-| **Multi-Platform** | Single interface | Different per platform | Different operator per platform |
+| **Learning Curve** | Consistent patterns | Custom per team | New APIs to learn |
+| **Multi-Platform** | Unified interface | Different per platform | Different operator per platform |
 | **Hera Support** | Built-in | Manual integration | Limited support |
+| **Ecosystem** | Growing with community | Static | Vendor-controlled |
 
-## Next Steps
+## Getting Involved
 
+### For Users
 - **[Get Started](../getting-started/README.md)**: Install your first connector
 - **[Core Concepts](../core-concepts/README.md)**: Learn about WorkflowTemplates and parameters
 - **[Connectors](../connectors/README.md)**: Explore available connectors
 - **[Architecture](architecture.md)**: Deep dive into how connectors work
+
+### For Contributors
+- **[Contributing Guide](../CONTRIBUTING.md)**: Learn how to build and submit connectors
+- **[Connector Standards](../reference/connector-standards.md)**: Requirements for new connectors
+- **[Community Discussions](https://github.com/pipekit/argo-connectors/discussions)**: Share ideas and get help
+
+## Roadmap
+
+### Current Connectors (Maintained by Pipekit)
+- ✅ Databricks
+- ✅ Apache Spark
+
+### Community Wishlist
+Vote on or contribute these connectors:
+- ❄️ Snowflake
+- 🔧 dbt (Data Build Tool)
+- 🌊 Airflow Integration
+- 📊 Fivetran
+- 🔄 Great Expectations
+- 📈 BI Tools (Looker, Mode, Tableau)
+- 🗄️ Database Connectors (PostgreSQL, MongoDB, etc.)
+- ☁️ Cloud Storage (S3, GCS, Azure Blob)
+
+[→ See Full Roadmap & Contribute](https://github.com/pipekit/argo-connectors/discussions/categories/roadmap)
