@@ -1,0 +1,56 @@
+{
+  "title": "Argo Connectors Documentation",
+  "description": "Official documentation for Argo Workflows connectors to third-party data tools",
+  "author": "Pipekit",
+  "language": "en",
+  "gitbook": ">=3.2.0",
+  "root": ".",
+  "structure": {
+    "readme": "README.md",
+    "summary": "SUMMARY.md"
+  },
+  "plugins": [
+    "theme-default",
+    "mermaid-gb3",
+    "code",
+    "expandable-chapters",
+    "search",
+    "github",
+    "anchor-navigation-ex",
+    "copy-code-button"
+  ],
+  "pluginsConfig": {
+    "github": {
+      "url": "https://github.com/pipekit/argo-connectors"
+    },
+    "theme-default": {
+      "showLevel": true
+    },
+    "anchor-navigation-ex": {
+      "showLevel": false,
+      "associatedWithSummary": true,
+      "printLog": false,
+      "multipleH1": true,
+      "mode": "float",
+      "showGoTop": true,
+      "float": {
+        "floatIcon": "fa fa-navicon",
+        "showLevelIcon": false,
+        "level1Icon": "fa fa-hand-o-right",
+        "level2Icon": "fa fa-hand-o-right",
+        "level3Icon": "fa fa-hand-o-right"
+      },
+      "pageTop": {
+        "showLevelIcon": false,
+        "level1Icon": "fa fa-hand-o-right",
+        "level2Icon": "fa fa-hand-o-right",
+        "level3Icon": "fa fa-hand-o-right"
+      }
+    }
+  },
+  "variables": {
+    "argoVersion": "v3.5+",
+    "sparkOperatorVersion": "v1beta2",
+    "databricksConnectorVersion": "0.0.2"
+  }
+}
