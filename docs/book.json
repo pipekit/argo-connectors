@@ -1,6 +1,6 @@
 {
   "title": "Argo Connectors Documentation",
-  "description": "Official documentation for Argo Workflows connectors to third-party data tools",
+  "description": "Pipekit documentation for Argo Workflows connectors to third-party data tools",
   "author": "Pipekit",
   "language": "en",
   "gitbook": ">=3.2.0",
