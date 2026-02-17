@@ -4,8 +4,7 @@
 
 * [Overview](README.md)
 * [What are Argo Connectors?](introduction/README.md)
-* [Why Argo Connectors?](introduction/why-argo-connectors.md)
-* [Architecture](introduction/architecture.md)
+* [Contributing Guide](CONTRIBUTING.md)
 
 ## Getting Started
 

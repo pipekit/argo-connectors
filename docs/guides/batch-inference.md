@@ -567,10 +567,10 @@ Track scoring progress and performance:
 
 ```python
 # In your Databricks notebook
-from pyspark.sql.functions import current_timestamp
+from datetime import datetime
 
 # Log progress
-print(f"Processing started: {current_timestamp()}")
+print(f"Processing started: {datetime.now()}")
 print(f"Total records to score: {df.count():,}")
 
 # Track batch progress

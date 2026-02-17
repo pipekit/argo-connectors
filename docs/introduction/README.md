@@ -185,8 +185,7 @@ w.create()
 - **[Architecture](architecture.md)**: Deep dive into how connectors work
 
 ### For Contributors
-- **[Contributing Guide](../CONTRIBUTING.md)**: Learn how to build and submit connectors
-- **[Connector Standards](../reference/connector-standards.md)**: Requirements for new connectors
+- [Contributing Guide](CONTRIBUTING.md) - Learn how to build and submit connectors
 - **[Community Discussions](https://github.com/pipekit/argo-connectors/discussions)**: Share ideas and get help
 
 ## Roadmap

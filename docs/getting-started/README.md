@@ -2,7 +2,7 @@
 
 Get up and running with community-maintained Argo Connectors in less than 10 minutes.
 
-> **New to Argo Connectors?** This hub provides production-ready integrations maintained by the community. Start here to use existing connectors, or [contribute your own](../CONTRIBUTING.md)!
+> **New to Argo Connectors?** This hub provides production-ready integrations maintained by the community. Start here to use existing connectors, or [contribute your own](CONTRIBUTING.md)!
 
 ## Prerequisites
 
