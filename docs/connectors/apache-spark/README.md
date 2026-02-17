@@ -1,6 +1,6 @@
 # Apache Spark Connector
 
-The Apache Spark connector enables you to run Spark applications (JVM and Python) on Kubernetes using the [Spark Operator](https://github.com/GoogleCloudPlatform/spark-on-k8s-operator), directly from Argo Workflows.
+The Apache Spark connector enables you to run Spark applications (JVM and Python) on Kubernetes using the [Spark Operator](https://github.com/kubeflow/spark-operator), directly from Argo Workflows.
 
 ## Overview
 
