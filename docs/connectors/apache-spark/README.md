@@ -83,7 +83,7 @@ spec:
 The Spark Operator must be installed in your cluster. Install it with:
 
 ```bash
-helm repo add spark-operator https://googlecloudplatform.github.io/spark-on-k8s-operator
+helm repo add spark-operator https://kubeflow.github.io/spark-operator
 
 helm install spark-operator spark-operator/spark-operator \
   --namespace spark-operator \
@@ -211,7 +211,7 @@ Use these outputs in subsequent workflow steps:
 - - name: cleanup
     templateRef:
       name: spark-delete-resource
-       template: spark-delete
+      template: spark-delete
     arguments:
       parameters:
         - name: namespace
