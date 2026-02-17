@@ -76,7 +76,7 @@ Community-requested integrations we'd love to see:
 
 **Request a connector**: [Open an issue](https://github.com/pipekit/argo-connectors/issues/new) describing the platform and your use case
 
-**Contribute a connector**: [Submit a pull request](https://github.com/pipekit/argo-connectors/pulls) - see our [Contributing Guide](CONTRIBUTING.md) for details
+**Contribute a connector**: [Submit a pull request](https://github.com/pipekit/argo-connectors/pulls) - see our [Contributing Guide](../CONTRIBUTING.md) for details
 
 ### What Makes a Good Connector?
 
@@ -132,11 +132,11 @@ Questions or issues?
 
 - [Report Issues](https://github.com/pipekit/argo-connectors/issues) - Bug reports and feature requests
 - [Submit Pull Requests](https://github.com/pipekit/argo-connectors/pulls) - Contribute improvements
-- [Contributing Guide](CONTRIBUTING.md) - Learn how to contribute
+- [Contributing Guide](../CONTRIBUTING.md) - Learn how to contribute
 
 ## Next Steps
 
 - [Get Started](../getting-started/README.md) - Install and use your first connector
-- [Contributing Guide](CONTRIBUTING.md) - Add your own connector
+- [Contributing Guide](../CONTRIBUTING.md) - Add your own connector
 - [Core Concepts](../core-concepts/README.md) - Learn how connectors work
 - [Guides](../guides/README.md) - Build complete data pipelines

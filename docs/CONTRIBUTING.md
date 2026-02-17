@@ -23,7 +23,7 @@ Ready to build a connector? Follow these steps:
 ## Building a Connector
 
 ### 1. Check Existing Connectors
-Browse the [existing connectors](docs/connectors/README.md) to see if something similar exists.
+Browse the [existing connectors](connectors/README.md) to see if something similar exists.
 
 ### 2. Design Your Connector
 A good connector includes:
@@ -34,7 +34,7 @@ A good connector includes:
 - **Documentation** - Complete guide with parameter reference
 
 ### 3. Follow the Pattern
-Use the [Databricks Connector](databricks/workflow-template.yaml) as your reference template.
+Use the [Databricks Connector](../databricks/workflow-template.yaml) as your reference template.
 
 Key elements:
 ```yaml
@@ -104,7 +104,7 @@ Brief description of what your connector does.
 
 **parameter-reference.md** - Complete parameter documentation
 
-See [Databricks docs](docs/connectors/databricks/) as a template.
+See [Databricks docs](connectors/databricks/) as a template.
 
 ### 5. Test Your Connector
 Before submitting:
