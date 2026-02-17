@@ -52,14 +52,14 @@ with Workflow(
                 Parameter(name="code-path", value="/Users/ml-team/batch-inference"),
                 Parameter(name="task-type", value="notebook"),
                 Parameter(name="cluster-mode", value="New"),
-                
+
                 # Use memory-optimized instances for large datasets
                 Parameter(name="new-cluster-spark-version", value="13.3.x-scala2.12"),
                 Parameter(name="new-cluster-node-type", value="r5.4xlarge"),
                 Parameter(name="scaling-type", value="autoscale"),
                 Parameter(name="min-workers", value="5"),
                 Parameter(name="max-workers", value="20"),
-                
+
                 # Pass workflow parameters to notebook
                 Parameter(
                     name="args",
@@ -67,9 +67,8 @@ with Workflow(
                 ),
             ]
         )
-        
+
         # Step 2: Validate results
-        s.next()
         WorkflowTemplateRef(
             name="validate-output",
             template_ref="databricks-connector",
@@ -325,7 +324,7 @@ with Workflow(
                     ),
                 ]
             )
-            
+
             WorkflowTemplateRef(
                 name="score-model-v2",
                 template_ref="databricks-connector",
@@ -345,9 +344,8 @@ with Workflow(
                     ),
                 ]
             )
-        
+
         # Compare predictions
-        s.next()
         WorkflowTemplateRef(
             name="compare-models",
             template_ref="databricks-connector",

@@ -216,9 +216,8 @@ with Workflow(
                 Parameter(name="run-name", value="ingest-data"),
             ]
         )
-        
+
         # Step 2: Feature Engineering
-        s.next()
         WorkflowTemplateRef(
             name="feature-engineering",
             template_ref="databricks-connector",
@@ -235,9 +234,8 @@ with Workflow(
                 Parameter(name="run-name", value="feature-engineering"),
             ]
         )
-        
+
         # Step 3: Model Training
-        s.next()
         WorkflowTemplateRef(
             name="train-model",
             template_ref="databricks-connector",
@@ -252,9 +250,8 @@ with Workflow(
                 Parameter(name="run-name", value="train-model"),
             ]
         )
-        
+
         # Step 4: Model Evaluation
-        s.next()
         WorkflowTemplateRef(
             name="evaluate-model",
             template_ref="databricks-connector",
@@ -308,8 +305,7 @@ with Workflow(generate_name="pipeline-", namespace="default") as w:
             name="data-prep",
             notebook_path="/Users/team/data-prep",
         )
-        
-        s.next()
+
         create_databricks_step(
             name="model-train",
             notebook_path="/Users/team/model-train",
@@ -354,10 +350,8 @@ with Workflow(
                 Parameter(name="cluster-mode", value="Serverless"),
             ]
         )
-        
+
         # Step 2: Use outputs from previous step
-        s.next()
-        
         @script()
         def print_results(run_id: str, run_url: str, result: str, state: str):
             print(f"Databricks Run ID: {run_id}")
@@ -422,8 +416,7 @@ with Workflow(
                 Parameter(name="notebook-params", value="start_date=2024-01-01,end_date=2024-01-31"),
             ]
         )
-        
-        s.next()
+
         # Python-based job
         WorkflowTemplateRef(
             name="run-python-job",
@@ -434,8 +427,7 @@ with Workflow(
                 Parameter(name="python-params", value="arg1,arg2,arg3"),
             ]
         )
-        
-        s.next()
+
         # JAR-based job
         WorkflowTemplateRef(
             name="run-jar-job",
