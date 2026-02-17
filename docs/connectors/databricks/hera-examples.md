@@ -25,22 +25,26 @@ GlobalConfig.namespace = "default"
 ### Basic Notebook Execution (Serverless)
 
 ```python
-from hera.workflows import Workflow, Parameter, WorkflowTemplateRef, Steps
+from hera.workflows import Workflow, Steps, Step, TemplateRef
 
 with Workflow(
     generate_name="notebook-serverless-",
-    namespace="default"
+    namespace="default",
+    entrypoint="main"
 ) as w:
     with Steps(name="main"):
-        WorkflowTemplateRef(
+        Step(
             name="run-notebook",
-            template_ref="databricks-connector",
-            template="run-job",
-            arguments=[
-                Parameter(name="code-path", value="/Users/data-team/etl-pipeline"),
-                Parameter(name="task-type", value="notebook"),
-                Parameter(name="cluster-mode", value="Serverless"),
-            ]
+            template_ref=TemplateRef(
+                name="databricks-connector",
+                template="run-job",
+                cluster_scope=False,  # Use True for ClusterWorkflowTemplate
+            ),
+            arguments={
+                "code-path": "/Users/data-team/etl-pipeline",
+                "task-type": "notebook",
+                "cluster-mode": "Serverless",
+            }
         )
 
 # Submit to cluster
@@ -50,38 +54,42 @@ w.create()
 ### Notebook with New Job Cluster
 
 ```python
-from hera.workflows import Workflow, Parameter, WorkflowTemplateRef, Steps
+from hera.workflows import Workflow, Steps, Step, TemplateRef
 
 with Workflow(
     generate_name="notebook-new-cluster-",
-    namespace="default"
+    namespace="default",
+    entrypoint="main"
 ) as w:
     with Steps(name="main"):
-        WorkflowTemplateRef(
+        Step(
             name="feature-engineering",
-            template_ref="databricks-connector",
-            template="run-job",
-            arguments=[
+            template_ref=TemplateRef(
+                name="databricks-connector",
+                template="run-job",
+                cluster_scope=False,
+            ),
+            arguments={
                 # Code configuration
-                Parameter(name="code-path", value="/Users/ml-team/feature-engineering"),
-                Parameter(name="task-type", value="notebook"),
-                Parameter(name="cluster-mode", value="New"),
+                "code-path": "/Users/ml-team/feature-engineering",
+                "task-type": "notebook",
+                "cluster-mode": "New",
                 
                 # Cluster configuration
-                Parameter(name="new-cluster-spark-version", value="13.3.x-scala2.12"),
-                Parameter(name="new-cluster-node-type", value="i3.xlarge"),
-                Parameter(name="scaling-type", value="autoscale"),
-                Parameter(name="min-workers", value="2"),
-                Parameter(name="max-workers", value="8"),
+                "new-cluster-spark-version": "13.3.x-scala2.12",
+                "new-cluster-node-type": "i3.xlarge",
+                "scaling-type": "autoscale",
+                "min-workers": "2",
+                "max-workers": "8",
                 
                 # Cloud configuration
-                Parameter(name="cloud-provider", value="AWS"),
-                Parameter(name="availability", value="SPOT"),
+                "cloud-provider": "AWS",
+                "availability": "SPOT",
                 
                 # Job metadata
-                Parameter(name="run-name", value="feature-engineering-job"),
-                Parameter(name="email-notifications", value="ml-team@company.com"),
-            ]
+                "run-name": "feature-engineering-job",
+                "email-notifications": "ml-team@company.com",
+            }
         )
 
 w.create()
@@ -90,7 +98,7 @@ w.create()
 ### Using Python Variables for Configuration
 
 ```python
-from hera.workflows import Workflow, Parameter, WorkflowTemplateRef, Steps
+from hera.workflows import Workflow, Steps, Step, TemplateRef
 
 # Define configuration
 NOTEBOOK_PATH = "/Users/ml-team/model-training"
@@ -101,23 +109,27 @@ MAX_WORKERS = 10
 
 with Workflow(
     generate_name="ml-training-",
-    namespace="default"
+    namespace="default",
+    entrypoint="main"
 ) as w:
     with Steps(name="main"):
-        WorkflowTemplateRef(
+        Step(
             name="train-model",
-            template_ref="databricks-connector",
-            template="run-job",
-            arguments=[
-                Parameter(name="code-path", value=NOTEBOOK_PATH),
-                Parameter(name="task-type", value="notebook"),
-                Parameter(name="cluster-mode", value="New"),
-                Parameter(name="new-cluster-spark-version", value=SPARK_VERSION),
-                Parameter(name="new-cluster-node-type", value=NODE_TYPE),
-                Parameter(name="scaling-type", value="autoscale"),
-                Parameter(name="min-workers", value=str(MIN_WORKERS)),
-                Parameter(name="max-workers", value=str(MAX_WORKERS)),
-            ]
+            template_ref=TemplateRef(
+                name="databricks-connector",
+                template="run-job",
+                cluster_scope=False,
+            ),
+            arguments={
+                "code-path": NOTEBOOK_PATH,
+                "task-type": "notebook",
+                "cluster-mode": "New",
+                "new-cluster-spark-version": SPARK_VERSION,
+                "new-cluster-node-type": NODE_TYPE,
+                "scaling-type": "autoscale",
+                "min-workers": str(MIN_WORKERS),
+                "max-workers": str(MAX_WORKERS),
+            }
         )
 
 w.create()
@@ -128,31 +140,35 @@ w.create()
 ### PySpark Script with Arguments
 
 ```python
-from hera.workflows import Workflow, Parameter, WorkflowTemplateRef, Steps
+from hera.workflows import Workflow, Steps, Step, TemplateRef
 
 with Workflow(
     generate_name="spark-python-",
-    namespace="default"
+    namespace="default",
+    entrypoint="main"
 ) as w:
     with Steps(name="main"):
-        WorkflowTemplateRef(
+        Step(
             name="data-processing",
-            template_ref="databricks-connector",
-            template="run-job",
-            arguments=[
-                Parameter(name="code-path", value="dbfs:/scripts/process_data.py"),
-                Parameter(name="task-type", value="spark-python"),
-                Parameter(name="args", value="input/path/,output/path/,--mode=production"),
+            template_ref=TemplateRef(
+                name="databricks-connector",
+                template="run-job",
+                cluster_scope=False,
+            ),
+            arguments={
+                "code-path": "dbfs:/scripts/process_data.py",
+                "task-type": "spark-python",
+                "args": "input/path/,output/path/,--mode=production",
                 
                 # Cluster configuration
-                Parameter(name="cluster-mode", value="New"),
-                Parameter(name="new-cluster-spark-version", value="13.3.x-scala2.12"),
-                Parameter(name="new-cluster-node-type", value="r5.2xlarge"),
-                Parameter(name="new-cluster-num-workers", value="4"),
+                "cluster-mode": "New",
+                "new-cluster-spark-version": "13.3.x-scala2.12",
+                "new-cluster-node-type": "r5.2xlarge",
+                "new-cluster-num-workers": "4",
                 
                 # Custom Spark config
-                Parameter(name="spark-conf", value="spark.sql.shuffle.partitions=200,spark.executor.memory=4g"),
-            ]
+                "spark-conf": "spark.sql.shuffle.partitions=200,spark.executor.memory=4g",
+            }
         )
 
 w.create()
@@ -163,30 +179,34 @@ w.create()
 ### Scala JAR with Main Class
 
 ```python
-from hera.workflows import Workflow, Parameter, WorkflowTemplateRef, Steps
+from hera.workflows import Workflow, Steps, Step, TemplateRef
 
 with Workflow(
     generate_name="spark-jar-",
-    namespace="default"
+    namespace="default",
+    entrypoint="main"
 ) as w:
     with Steps(name="main"):
-        WorkflowTemplateRef(
+        Step(
             name="batch-processing",
-            template_ref="databricks-connector",
-            template="run-job",
-            arguments=[
-                Parameter(name="code-path", value="dbfs:/jars/batch-processor.jar"),
-                Parameter(name="task-type", value="spark-jar"),
-                Parameter(name="main-class-name", value="com.company.BatchProcessor"),
-                Parameter(name="args", value="2024-01-01,2024-01-31,incremental"),
+            template_ref=TemplateRef(
+                name="databricks-connector",
+                template="run-job",
+                cluster_scope=False,
+            ),
+            arguments={
+                "code-path": "dbfs:/jars/batch-processor.jar",
+                "task-type": "spark-jar",
+                "main-class-name": "com.company.BatchProcessor",
+                "args": "2024-01-01,2024-01-31,incremental",
                 
                 # Cluster with instance pool
-                Parameter(name="cluster-mode", value="New"),
-                Parameter(name="new-cluster-spark-version", value="13.3.x-scala2.12"),
-                Parameter(name="instance-pool-id", value="pool-abc123"),
-                Parameter(name="scaling-type", value="fixed"),
-                Parameter(name="new-cluster-num-workers", value="10"),
-            ]
+                "cluster-mode": "New",
+                "new-cluster-spark-version": "13.3.x-scala2.12",
+                "instance-pool-id": "pool-abc123",
+                "scaling-type": "fixed",
+                "new-cluster-num-workers": "10",
+            }
         )
 
 w.create()
@@ -197,71 +217,84 @@ w.create()
 ### Data Pipeline with Multiple Notebooks
 
 ```python
-from hera.workflows import Workflow, Parameter, WorkflowTemplateRef, Steps
+from hera.workflows import Workflow, Steps, Step, TemplateRef
 
 with Workflow(
     generate_name="ml-pipeline-",
-    namespace="default"
+    namespace="default",
+    entrypoint="main"
 ) as w:
     with Steps(name="main") as s:
         # Step 1: Data Ingestion
-        WorkflowTemplateRef(
+        Step(
             name="ingest-data",
-            template_ref="databricks-connector",
-            template="run-job",
-            arguments=[
-                Parameter(name="code-path", value="/Users/data-team/01-ingest"),
-                Parameter(name="task-type", value="notebook"),
-                Parameter(name="cluster-mode", value="Serverless"),
-                Parameter(name="run-name", value="ingest-data"),
-            ]
+            template_ref=TemplateRef(
+                name="databricks-connector",
+                template="run-job",
+                cluster_scope=False,
+            ),
+            arguments={
+                "code-path": "/Users/data-team/01-ingest",
+                "task-type": "notebook",
+                "cluster-mode": "Serverless",
+                "run-name": "ingest-data",
+            }
         )
-
+        
         # Step 2: Feature Engineering
-        WorkflowTemplateRef(
+        Step(
             name="feature-engineering",
-            template_ref="databricks-connector",
-            template="run-job",
-            arguments=[
-                Parameter(name="code-path", value="/Users/ml-team/02-features"),
-                Parameter(name="task-type", value="notebook"),
-                Parameter(name="cluster-mode", value="New"),
-                Parameter(name="new-cluster-spark-version", value="13.3.x-scala2.12"),
-                Parameter(name="new-cluster-node-type", value="i3.2xlarge"),
-                Parameter(name="scaling-type", value="autoscale"),
-                Parameter(name="min-workers", value="2"),
-                Parameter(name="max-workers", value="10"),
-                Parameter(name="run-name", value="feature-engineering"),
-            ]
+            template_ref=TemplateRef(
+                name="databricks-connector",
+                template="run-job",
+                cluster_scope=False,
+            ),
+            arguments={
+                "code-path": "/Users/ml-team/02-features",
+                "task-type": "notebook",
+                "cluster-mode": "New",
+                "new-cluster-spark-version": "13.3.x-scala2.12",
+                "new-cluster-node-type": "i3.2xlarge",
+                "scaling-type": "autoscale",
+                "min-workers": "2",
+                "max-workers": "10",
+                "run-name": "feature-engineering",
+            }
         )
-
+        
         # Step 3: Model Training
-        WorkflowTemplateRef(
+        Step(
             name="train-model",
-            template_ref="databricks-connector",
-            template="run-job",
-            arguments=[
-                Parameter(name="code-path", value="/Users/ml-team/03-train"),
-                Parameter(name="task-type", value="notebook"),
-                Parameter(name="cluster-mode", value="New"),
-                Parameter(name="new-cluster-spark-version", value="13.3.x-gpu-ml-scala2.12"),
-                Parameter(name="new-cluster-node-type", value="g4dn.xlarge"),
-                Parameter(name="new-cluster-num-workers", value="1"),
-                Parameter(name="run-name", value="train-model"),
-            ]
+            template_ref=TemplateRef(
+                name="databricks-connector",
+                template="run-job",
+                cluster_scope=False,
+            ),
+            arguments={
+                "code-path": "/Users/ml-team/03-train",
+                "task-type": "notebook",
+                "cluster-mode": "New",
+                "new-cluster-spark-version": "13.3.x-gpu-ml-scala2.12",
+                "new-cluster-node-type": "g4dn.xlarge",
+                "new-cluster-num-workers": "1",
+                "run-name": "train-model",
+            }
         )
-
+        
         # Step 4: Model Evaluation
-        WorkflowTemplateRef(
+        Step(
             name="evaluate-model",
-            template_ref="databricks-connector",
-            template="run-job",
-            arguments=[
-                Parameter(name="code-path", value="/Users/ml-team/04-evaluate"),
-                Parameter(name="task-type", value="notebook"),
-                Parameter(name="cluster-mode", value="Serverless"),
-                Parameter(name="run-name", value="evaluate-model"),
-            ]
+            template_ref=TemplateRef(
+                name="databricks-connector",
+                template="run-job",
+                cluster_scope=False,
+            ),
+            arguments={
+                "code-path": "/Users/ml-team/04-evaluate",
+                "task-type": "notebook",
+                "cluster-mode": "Serverless",
+                "run-name": "evaluate-model",
+            }
         )
 
 w.create()
@@ -270,43 +303,49 @@ w.create()
 ### Using Helper Functions for Reusability
 
 ```python
-from hera.workflows import Workflow, Parameter, WorkflowTemplateRef, Steps
-from typing import List
+from hera.workflows import Workflow, Steps, Step, TemplateRef
+from typing import Dict
 
-def create_databricks_step(
+def databricks_step(
     name: str,
     notebook_path: str,
     cluster_mode: str = "Serverless",
     **kwargs
-) -> WorkflowTemplateRef:
+) -> Step:
     """Helper function to create Databricks workflow steps"""
-    args = [
-        Parameter(name="code-path", value=notebook_path),
-        Parameter(name="task-type", value="notebook"),
-        Parameter(name="cluster-mode", value=cluster_mode),
-        Parameter(name="run-name", value=name),
-    ]
+    args = {
+        "code-path": notebook_path,
+        "task-type": "notebook",
+        "cluster-mode": cluster_mode,
+        "run-name": name,
+    }
     
     # Add any additional parameters
-    for key, value in kwargs.items():
-        args.append(Parameter(name=key, value=str(value)))
+    args.update({k.replace("_", "-"): v for k, v in kwargs.items()})
     
-    return WorkflowTemplateRef(
+    return Step(
         name=name,
-        template_ref="databricks-connector",
-        template="run-job",
+        template_ref=TemplateRef(
+            name="databricks-connector",
+            template="run-job",
+            cluster_scope=False,
+        ),
         arguments=args
     )
 
 # Use the helper function
-with Workflow(generate_name="pipeline-", namespace="default") as w:
-    with Steps(name="main") as s:
-        create_databricks_step(
+with Workflow(
+    generate_name="pipeline-",
+    namespace="default",
+    entrypoint="main"
+) as w:
+    with Steps(name="main"):
+        databricks_step(
             name="data-prep",
             notebook_path="/Users/team/data-prep",
         )
-
-        create_databricks_step(
+        
+        databricks_step(
             name="model-train",
             notebook_path="/Users/team/model-train",
             cluster_mode="New",
@@ -327,45 +366,48 @@ w.create()
 ```python
 from hera.workflows import (
     Workflow,
-    Parameter,
-    WorkflowTemplateRef,
     Steps,
-    Container,
+    Step,
+    TemplateRef,
     script
 )
 
 with Workflow(
     generate_name="pipeline-with-outputs-",
-    namespace="default"
+    namespace="default",
+    entrypoint="main"
 ) as w:
-    with Steps(name="main") as s:
+    @script()
+    def print_results(run_id: str, run_url: str, result: str, state: str):
+        print(f"Databricks Run ID: {run_id}")
+        print(f"Databricks Run URL: {run_url}")
+        print(f"Result: {result}")
+        print(f"State: {state}")
+    
+    with Steps(name="main"):
         # Step 1: Run Databricks job
-        databricks_step = WorkflowTemplateRef(
+        databricks_step = Step(
             name="process-data",
-            template_ref="databricks-connector",
-            template="run-job",
-            arguments=[
-                Parameter(name="code-path", value="/Users/data-team/processor"),
-                Parameter(name="task-type", value="notebook"),
-                Parameter(name="cluster-mode", value="Serverless"),
-            ]
+            template_ref=TemplateRef(
+                name="databricks-connector",
+                template="run-job",
+                cluster_scope=False,
+            ),
+            arguments={
+                "code-path": "/Users/data-team/processor",
+                "task-type": "notebook",
+                "cluster-mode": "Serverless",
+            }
         )
-
-        # Step 2: Use outputs from previous step
-        @script()
-        def print_results(run_id: str, run_url: str, result: str, state: str):
-            print(f"Databricks Run ID: {run_id}")
-            print(f"Databricks Run URL: {run_url}")
-            print(f"Result: {result}")
-            print(f"State: {state}")
         
+        # Step 2: Use outputs from previous step
         print_results(
-            arguments=[
-                Parameter(name="run_id", value="{{steps.process-data.outputs.parameters.run-id}}"),
-                Parameter(name="run_url", value="{{steps.process-data.outputs.parameters.run-url}}"),
-                Parameter(name="result", value="{{steps.process-data.outputs.parameters.result}}"),
-                Parameter(name="state", value="{{steps.process-data.outputs.parameters.state}}"),
-            ]
+            arguments={
+                "run_id": "{{steps.process-data.outputs.parameters.run-id}}",
+                "run_url": "{{steps.process-data.outputs.parameters.run-url}}",
+                "result": "{{steps.process-data.outputs.parameters.result}}",
+                "state": "{{steps.process-data.outputs.parameters.state}}",
+            }
         )
 
 w.create()
@@ -376,21 +418,25 @@ w.create()
 ### Trigger Existing Job by ID
 
 ```python
-from hera.workflows import Workflow, Parameter, WorkflowTemplateRef, Steps
+from hera.workflows import Workflow, Steps, Step, TemplateRef
 
 with Workflow(
     generate_name="existing-job-",
-    namespace="default"
+    namespace="default",
+    entrypoint="main"
 ) as w:
     with Steps(name="main"):
-        WorkflowTemplateRef(
+        Step(
             name="run-scheduled-job",
-            template_ref="databricks-connector",
-            template="run-existing-job",
-            arguments=[
-                Parameter(name="job-id", value="123456"),
-                Parameter(name="notebook-params", value="date=2024-01-01,env=production"),
-            ]
+            template_ref=TemplateRef(
+                name="databricks-connector",
+                template="run-existing-job",
+                cluster_scope=False,
+            ),
+            arguments={
+                "job-id": "123456",
+                "notebook-params": "date=2024-01-01,env=production",
+            }
         )
 
 w.create()
@@ -399,44 +445,54 @@ w.create()
 ### Multiple Existing Jobs with Different Parameters
 
 ```python
-from hera.workflows import Workflow, Parameter, WorkflowTemplateRef, Steps
+from hera.workflows import Workflow, Steps, Step, TemplateRef
 
 with Workflow(
     generate_name="existing-jobs-",
-    namespace="default"
+    namespace="default",
+    entrypoint="main"
 ) as w:
-    with Steps(name="main") as s:
+    with Steps(name="main"):
         # Notebook-based job
-        WorkflowTemplateRef(
+        Step(
             name="run-notebook-job",
-            template_ref="databricks-connector",
-            template="run-existing-job",
-            arguments=[
-                Parameter(name="job-id", value="111111"),
-                Parameter(name="notebook-params", value="start_date=2024-01-01,end_date=2024-01-31"),
-            ]
+            template_ref=TemplateRef(
+                name="databricks-connector",
+                template="run-existing-job",
+                cluster_scope=False,
+            ),
+            arguments={
+                "job-id": "111111",
+                "notebook-params": "start_date=2024-01-01,end_date=2024-01-31",
+            }
         )
-
+        
         # Python-based job
-        WorkflowTemplateRef(
+        Step(
             name="run-python-job",
-            template_ref="databricks-connector",
-            template="run-existing-job",
-            arguments=[
-                Parameter(name="job-id", value="222222"),
-                Parameter(name="python-params", value="arg1,arg2,arg3"),
-            ]
+            template_ref=TemplateRef(
+                name="databricks-connector",
+                template="run-existing-job",
+                cluster_scope=False,
+            ),
+            arguments={
+                "job-id": "222222",
+                "python-params": "arg1,arg2,arg3",
+            }
         )
-
+        
         # JAR-based job
-        WorkflowTemplateRef(
+        Step(
             name="run-jar-job",
-            template_ref="databricks-connector",
-            template="run-existing-job",
-            arguments=[
-                Parameter(name="job-id", value="333333"),
-                Parameter(name="jar-params", value="param1,param2,param3"),
-            ]
+            template_ref=TemplateRef(
+                name="databricks-connector",
+                template="run-existing-job",
+                cluster_scope=False,
+            ),
+            arguments={
+                "job-id": "333333",
+                "jar-params": "param1,param2,param3",
+            }
         )
 
 w.create()
@@ -447,7 +503,7 @@ w.create()
 ### Conditional Execution Based on Environment
 
 ```python
-from hera.workflows import Workflow, Parameter, WorkflowTemplateRef, Steps
+from hera.workflows import Workflow, Steps, Step, TemplateRef
 import os
 
 ENVIRONMENT = os.getenv("ENVIRONMENT", "dev")
@@ -455,21 +511,21 @@ ENVIRONMENT = os.getenv("ENVIRONMENT", "dev")
 # Different cluster configs per environment
 CLUSTER_CONFIGS = {
     "dev": {
-        "cluster_mode": "Serverless",
+        "cluster-mode": "Serverless",
     },
     "staging": {
-        "cluster_mode": "New",
-        "new_cluster_spark_version": "13.3.x-scala2.12",
-        "new_cluster_node_type": "i3.xlarge",
-        "new_cluster_num_workers": "2",
+        "cluster-mode": "New",
+        "new-cluster-spark-version": "13.3.x-scala2.12",
+        "new-cluster-node-type": "i3.xlarge",
+        "new-cluster-num-workers": "2",
     },
     "prod": {
-        "cluster_mode": "New",
-        "new_cluster_spark_version": "13.3.x-scala2.12",
-        "new_cluster_node_type": "i3.2xlarge",
-        "scaling_type": "autoscale",
-        "min_workers": "4",
-        "max_workers": "16",
+        "cluster-mode": "New",
+        "new-cluster-spark-version": "13.3.x-scala2.12",
+        "new-cluster-node-type": "i3.2xlarge",
+        "scaling-type": "autoscale",
+        "min-workers": "4",
+        "max-workers": "16",
     }
 }
 
@@ -477,5 +533,83 @@ config = CLUSTER_CONFIGS[ENVIRONMENT]
 
 with Workflow(
     generate_name=f"pipeline-{ENVIRONMENT}-",
-    namespace="default"
-) as w
+    namespace="default",
+    entrypoint="main"
+) as w:
+    with Steps(name="main"):
+        base_args = {
+            "code-path": "/Users/team/notebook",
+            "task-type": "notebook",
+        }
+        base_args.update(config)
+        
+        Step(
+            name="run-job",
+            template_ref=TemplateRef(
+                name="databricks-connector",
+                template="run-job",
+                cluster_scope=False,
+            ),
+            arguments=base_args
+        )
+
+w.create()
+```
+
+### Combining Connectors with Custom Logic
+
+```python
+from hera.workflows import Workflow, Steps, Step, TemplateRef, script
+
+@script()
+def validate_data():
+    """Custom validation logic"""
+    import requests
+    # Check if data exists before processing
+    response = requests.get("https://api.example.com/data/status")
+    if response.status_code != 200:
+        raise Exception("Data not ready")
+    print("Data validation passed")
+
+@script()
+def send_notification(message: str):
+    """Send notification after job completes"""
+    print(f"Notification: {message}")
+    # Add your notification logic here
+
+with Workflow(
+    generate_name="pipeline-with-custom-logic-",
+    namespace="default",
+    entrypoint="main"
+) as w:
+    with Steps(name="main"):
+        # Step 1: Custom validation
+        validate_data()
+        
+        # Step 2: Run Databricks connector
+        Step(
+            name="process-data",
+            template_ref=TemplateRef(
+                name="databricks-connector",
+                template="run-job",
+                cluster_scope=False,
+            ),
+            arguments={
+                "code-path": "/Users/team/process-data",
+                "task-type": "notebook",
+                "cluster-mode": "Serverless",
+            }
+        )
+        
+        # Step 3: Custom notification
+        send_notification(arguments={"message": "Processing complete"})
+
+w.create()
+```
+
+## Next Steps
+
+- [YAML Examples](yaml-examples.md) - See these examples in YAML format
+- [Parameter Reference](parameter-reference.md) - Complete parameter documentation
+- [Setup Guide](setup.md) - Configure secrets and prerequisites
+- [Cluster Modes](cluster-modes.md) - Deep dive into cluster options

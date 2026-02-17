@@ -31,54 +31,58 @@ graph LR
 {% tabs %}
 {% tab title="Python (Hera)" %}
 ```python
-from hera.workflows import Workflow, Parameter, WorkflowTemplateRef, Steps
+from hera.workflows import Workflow, Steps, Step, TemplateRef, Parameter
 
 with Workflow(
     generate_name="batch-inference-",
     namespace="default",
+    entrypoint="main",
     arguments=[
         Parameter(name="model-uri", value="models:/production-model/latest"),
         Parameter(name="input-path", value="s3://data-bucket/input/2024-01-01"),
         Parameter(name="output-path", value="s3://data-bucket/predictions/2024-01-01"),
     ]
 ) as w:
-    with Steps(name="main") as s:
+    with Steps(name="main"):
         # Step 1: Load and score data
-        WorkflowTemplateRef(
+        Step(
             name="batch-score",
-            template_ref="databricks-connector",
-            template="run-job",
-            arguments=[
-                Parameter(name="code-path", value="/Users/ml-team/batch-inference"),
-                Parameter(name="task-type", value="notebook"),
-                Parameter(name="cluster-mode", value="New"),
-
+            template_ref=TemplateRef(
+                name="databricks-connector",
+                template="run-job",
+                cluster_scope=False,
+            ),
+            arguments={
+                "code-path": "/Users/ml-team/batch-inference",
+                "task-type": "notebook",
+                "cluster-mode": "New",
+                
                 # Use memory-optimized instances for large datasets
-                Parameter(name="new-cluster-spark-version", value="13.3.x-scala2.12"),
-                Parameter(name="new-cluster-node-type", value="r5.4xlarge"),
-                Parameter(name="scaling-type", value="autoscale"),
-                Parameter(name="min-workers", value="5"),
-                Parameter(name="max-workers", value="20"),
-
+                "new-cluster-spark-version": "13.3.x-scala2.12",
+                "new-cluster-node-type": "r5.4xlarge",
+                "scaling-type": "autoscale",
+                "min-workers": "5",
+                "max-workers": "20",
+                
                 # Pass workflow parameters to notebook
-                Parameter(
-                    name="args",
-                    value="{{workflow.parameters.model-uri}},{{workflow.parameters.input-path}},{{workflow.parameters.output-path}}"
-                ),
-            ]
+                "args": "{{workflow.parameters.model-uri}},{{workflow.parameters.input-path}},{{workflow.parameters.output-path}}",
+            }
         )
-
+        
         # Step 2: Validate results
-        WorkflowTemplateRef(
+        Step(
             name="validate-output",
-            template_ref="databricks-connector",
-            template="run-job",
-            arguments=[
-                Parameter(name="code-path", value="/Users/ml-team/validate-predictions"),
-                Parameter(name="task-type", value="notebook"),
-                Parameter(name="cluster-mode", value="Serverless"),
-                Parameter(name="args", value="{{workflow.parameters.output-path}}"),
-            ]
+            template_ref=TemplateRef(
+                name="databricks-connector",
+                template="run-job",
+                cluster_scope=False,
+            ),
+            arguments={
+                "code-path": "/Users/ml-team/validate-predictions",
+                "task-type": "notebook",
+                "cluster-mode": "Serverless",
+                "args": "{{workflow.parameters.output-path}}",
+            }
         )
 
 # Submit to cluster
@@ -292,11 +296,12 @@ Score data with multiple model versions for A/B testing or ensemble predictions:
 {% tabs %}
 {% tab title="Python (Hera)" %}
 ```python
-from hera.workflows import Workflow, Parameter, WorkflowTemplateRef, Steps
+from hera.workflows import Workflow, Steps, Step, TemplateRef, Parameter
 
 with Workflow(
     generate_name="multi-model-inference-",
     namespace="default",
+    entrypoint="main",
     arguments=[
         Parameter(name="input-path", value="s3://data-bucket/input/2024-01-01"),
         Parameter(name="output-base-path", value="s3://data-bucket/predictions/2024-01-01"),
@@ -305,60 +310,60 @@ with Workflow(
     with Steps(name="main") as s:
         # Score with multiple models in parallel
         with s.parallel():
-            WorkflowTemplateRef(
+            Step(
                 name="score-model-v1",
-                template_ref="databricks-connector",
-                template="run-job",
-                arguments=[
-                    Parameter(name="code-path", value="/Users/ml-team/batch-inference"),
-                    Parameter(name="task-type", value="notebook"),
-                    Parameter(name="cluster-mode", value="New"),
-                    Parameter(name="new-cluster-spark-version", value="13.3.x-scala2.12"),
-                    Parameter(name="new-cluster-node-type", value="r5.2xlarge"),
-                    Parameter(name="scaling-type", value="autoscale"),
-                    Parameter(name="min-workers", value="5"),
-                    Parameter(name="max-workers", value="15"),
-                    Parameter(
-                        name="args",
-                        value="models:/churn-model/1,{{workflow.parameters.input-path}},{{workflow.parameters.output-base-path}}/v1"
-                    ),
-                ]
-            )
-
-            WorkflowTemplateRef(
-                name="score-model-v2",
-                template_ref="databricks-connector",
-                template="run-job",
-                arguments=[
-                    Parameter(name="code-path", value="/Users/ml-team/batch-inference"),
-                    Parameter(name="task-type", value="notebook"),
-                    Parameter(name="cluster-mode", value="New"),
-                    Parameter(name="new-cluster-spark-version", value="13.3.x-scala2.12"),
-                    Parameter(name="new-cluster-node-type", value="r5.2xlarge"),
-                    Parameter(name="scaling-type", value="autoscale"),
-                    Parameter(name="min-workers", value="5"),
-                    Parameter(name="max-workers", value="15"),
-                    Parameter(
-                        name="args",
-                        value="models:/churn-model/2,{{workflow.parameters.input-path}},{{workflow.parameters.output-base-path}}/v2"
-                    ),
-                ]
-            )
-
-        # Compare predictions
-        WorkflowTemplateRef(
-            name="compare-models",
-            template_ref="databricks-connector",
-            template="run-job",
-            arguments=[
-                Parameter(name="code-path", value="/Users/ml-team/compare-predictions"),
-                Parameter(name="task-type", value="notebook"),
-                Parameter(name="cluster-mode", value="Serverless"),
-                Parameter(
-                    name="args",
-                    value="{{workflow.parameters.output-base-path}}/v1,{{workflow.parameters.output-base-path}}/v2"
+                template_ref=TemplateRef(
+                    name="databricks-connector",
+                    template="run-job",
+                    cluster_scope=False,
                 ),
-            ]
+                arguments={
+                    "code-path": "/Users/ml-team/batch-inference",
+                    "task-type": "notebook",
+                    "cluster-mode": "New",
+                    "new-cluster-spark-version": "13.3.x-scala2.12",
+                    "new-cluster-node-type": "r5.2xlarge",
+                    "scaling-type": "autoscale",
+                    "min-workers": "5",
+                    "max-workers": "15",
+                    "args": "models:/churn-model/1,{{workflow.parameters.input-path}},{{workflow.parameters.output-base-path}}/v1",
+                }
+            )
+            
+            Step(
+                name="score-model-v2",
+                template_ref=TemplateRef(
+                    name="databricks-connector",
+                    template="run-job",
+                    cluster_scope=False,
+                ),
+                arguments={
+                    "code-path": "/Users/ml-team/batch-inference",
+                    "task-type": "notebook",
+                    "cluster-mode": "New",
+                    "new-cluster-spark-version": "13.3.x-scala2.12",
+                    "new-cluster-node-type": "r5.2xlarge",
+                    "scaling-type": "autoscale",
+                    "min-workers": "5",
+                    "max-workers": "15",
+                    "args": "models:/churn-model/2,{{workflow.parameters.input-path}},{{workflow.parameters.output-base-path}}/v2",
+                }
+            )
+        
+        # Compare predictions
+        Step(
+            name="compare-models",
+            template_ref=TemplateRef(
+                name="databricks-connector",
+                template="run-job",
+                cluster_scope=False,
+            ),
+            arguments={
+                "code-path": "/Users/ml-team/compare-predictions",
+                "task-type": "notebook",
+                "cluster-mode": "Serverless",
+                "args": "{{workflow.parameters.output-base-path}}/v1,{{workflow.parameters.output-base-path}}/v2",
+            }
         )
 
 w.create()
@@ -465,13 +470,13 @@ spec:
 {% tabs %}
 {% tab title="Python (Hera)" %}
 ```python
-arguments=[
-    Parameter(name="new-cluster-node-type", value="r5.4xlarge"),
-    Parameter(name="scaling-type", value="autoscale"),
-    Parameter(name="min-workers", value="10"),
-    Parameter(name="max-workers", value="50"),
-    Parameter(name="availability", value="SPOT"),
-]
+arguments={
+    "new-cluster-node-type": "r5.4xlarge",
+    "scaling-type": "autoscale",
+    "min-workers": "10",
+    "max-workers": "50",
+    "availability": "SPOT",
+}
 ```
 {% endtab %}
 
@@ -498,11 +503,12 @@ Use workflow retry policies and error handling:
 {% tabs %}
 {% tab title="Python (Hera)" %}
 ```python
-from hera.workflows import Workflow, RetryStrategy
+from hera.workflows import Workflow, Steps, Step, TemplateRef, RetryStrategy
 
 with Workflow(
     generate_name="batch-inference-",
-    namespace="default"
+    namespace="default",
+    entrypoint="main"
 ) as w:
     # Add retry strategy
     retry_strategy = RetryStrategy(
@@ -515,16 +521,23 @@ with Workflow(
         }
     )
     
-    with Steps(name="main") as s:
-        WorkflowTemplateRef(
+    with Steps(name="main"):
+        Step(
             name="batch-score",
-            template_ref="databricks-connector",
-            template="run-job",
+            template_ref=TemplateRef(
+                name="databricks-connector",
+                template="run-job",
+                cluster_scope=False,
+            ),
             retry_strategy=retry_strategy,
-            arguments=[
-                # ... parameters
-            ]
+            arguments={
+                "code-path": "/Users/ml-team/batch-inference",
+                "task-type": "notebook",
+                "cluster-mode": "Serverless",
+            }
         )
+
+w.create()
 ```
 {% endtab %}
 

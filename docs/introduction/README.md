@@ -138,18 +138,28 @@ steps:
 All connectors work seamlessly with the [Hera](https://github.com/argoproj-labs/hera) Python SDK:
 
 ```python
-from hera.workflows import Workflow, WorkflowTemplateRef, Parameter
+from hera.workflows import Workflow, Steps, Step, TemplateRef
 
-with Workflow(generate_name="pipeline-") as w:
-    WorkflowTemplateRef(
-        name="databricks-job",
-        template_ref="databricks-connector",
-        template="run-job",
-        arguments=[
-            Parameter(name="code-path", value="/path/to/notebook"),
-            Parameter(name="cluster-mode", value="New"),
-        ]
-    )
+with Workflow(
+    generate_name="pipeline-",
+    namespace="default",
+    entrypoint="main"
+) as w:
+    with Steps(name="main"):
+        Step(
+            name="databricks-job",
+            template_ref=TemplateRef(
+                name="databricks-connector",
+                template="run-job",
+                cluster_scope=False,
+            ),
+            arguments={
+                "code-path": "/path/to/notebook",
+                "cluster-mode": "New",
+            }
+        )
+
+w.create()
 ```
 
 ## What Makes Argo Connectors Different?

@@ -154,22 +154,26 @@ Create a file named `my_first_workflow.py`:
 <summary><strong>Databricks Notebook Example</strong></summary>
 
 ```python
-from hera.workflows import Workflow, Parameter, WorkflowTemplateRef, Steps
+from hera.workflows import Workflow, Steps, Step, TemplateRef
 
 with Workflow(
     generate_name="databricks-notebook-",
-    namespace="default"
+    namespace="default",
+    entrypoint="main"
 ) as w:
     with Steps(name="main"):
-        WorkflowTemplateRef(
+        Step(
             name="run-notebook",
-            template_ref="databricks-connector",
-            template="run-job",
-            arguments=[
-                Parameter(name="code-path", value="/Users/your-email@company.com/HelloWorld"),
-                Parameter(name="task-type", value="notebook"),
-                Parameter(name="cluster-mode", value="Serverless"),
-            ]
+            template_ref=TemplateRef(
+                name="databricks-connector",
+                template="run-job",
+                cluster_scope=False,
+            ),
+            arguments={
+                "code-path": "/Users/your-email@company.com/HelloWorld",
+                "task-type": "notebook",
+                "cluster-mode": "Serverless"
+            }
         )
 
 # Submit to cluster
@@ -181,24 +185,28 @@ w.create()
 <summary><strong>Spark Job Example</strong></summary>
 
 ```python
-from hera.workflows import Workflow, Parameter, WorkflowTemplateRef, Steps
+from hera.workflows import Workflow, Steps, Step, TemplateRef
 
 with Workflow(
     generate_name="spark-pi-",
-    namespace="default"
+    namespace="default",
+    entrypoint="main"
 ) as w:
     with Steps(name="main"):
-        WorkflowTemplateRef(
+        Step(
             name="spark-job",
-            template_ref="spark-data-connector-jvm",
-            template="spark",
-            arguments=[
-                Parameter(name="type", value="Scala"),
-                Parameter(name="mainClass", value="org.apache.spark.examples.SparkPi"),
-                Parameter(name="namespace", value="default"),
-                Parameter(name="globalImage", value="gcr.io/spark-operator/spark:v3.1.1"),
-                Parameter(name="mainApplicationFile", value="local:///opt/spark/examples/jars/spark-examples_2.12-3.1.1.jar"),
-            ]
+            template_ref=TemplateRef(
+                name="spark-data-connector-jvm",
+                template="spark",
+                cluster_scope=False,
+            ),
+            arguments={
+                "type": "Scala",
+                "mainClass": "org.apache.spark.examples.SparkPi",
+                "namespace": "default",
+                "globalImage": "gcr.io/spark-operator/spark:v3.1.1",
+                "mainApplicationFile": "local:///opt/spark/examples/jars/spark-examples_2.12-3.1.1.jar"
+            }
         )
 
 w.create()

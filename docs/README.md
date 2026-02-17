@@ -124,22 +124,31 @@ spec:
 
 **Using Hera (Python SDK):**
 ```python
-from hera.workflows import Workflow, Parameter, WorkflowTemplateRef, Steps
+from hera.workflows import Workflow, Steps, Step, TemplateRef
 
-with Workflow(generate_name="ml-pipeline-", namespace="default") as w:
+with Workflow(
+    generate_name="ml-pipeline-",
+    namespace="default",
+    entrypoint="main"
+) as w:
     with Steps(name="main"):
-        WorkflowTemplateRef(
+        Step(
             name="feature-engineering",
-            template_ref="databricks-connector",
-            template="run-job",
-            arguments=[
-                Parameter(name="code-path", value="/Users/data-team/feature-engineering"),
-                Parameter(name="task-type", value="notebook"),
-                Parameter(name="cluster-mode", value="New"),
-                Parameter(name="new-cluster-spark-version", value="13.3.x-scala2.12"),
-                Parameter(name="new-cluster-node-type", value="i3.xlarge"),
-            ]
+            template_ref=TemplateRef(
+                name="databricks-connector",
+                template="run-job",
+                cluster_scope=False,  # True for ClusterWorkflowTemplate
+            ),
+            arguments={
+                "code-path": "/Users/data-team/feature-engineering",
+                "task-type": "notebook",
+                "cluster-mode": "New",
+                "new-cluster-spark-version": "13.3.x-scala2.12",
+                "new-cluster-node-type": "i3.xlarge",
+            }
         )
+
+w.create()
 ```
 
 [→ See More Examples](guides/README.md)

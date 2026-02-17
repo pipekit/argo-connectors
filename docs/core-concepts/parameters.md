@@ -159,18 +159,25 @@ steps:
 ### Basic Parameter Passing
 
 ```python
-from hera.workflows import Workflow, Parameter, WorkflowTemplateRef, Steps
+from hera.workflows import Workflow, Steps, Step, TemplateRef
 
-with Workflow(generate_name="example-", namespace="default") as w:
+with Workflow(
+    generate_name="example-",
+    namespace="default",
+    entrypoint="main"
+) as w:
     with Steps(name="main"):
-        WorkflowTemplateRef(
+        Step(
             name="run-job",
-            template_ref="databricks-connector",
-            template="run-job",
-            arguments=[
-                Parameter(name="code-path", value="/Users/team/notebook"),
-                Parameter(name="cluster-mode", value="Serverless"),
-            ]
+            template_ref=TemplateRef(
+                name="databricks-connector",
+                template="run-job",
+                cluster_scope=False,
+            ),
+            arguments={
+                "code-path": "/Users/team/notebook",
+                "cluster-mode": "Serverless",
+            }
         )
 
 w.create()
@@ -179,24 +186,31 @@ w.create()
 ### Using Python Variables
 
 ```python
-from hera.workflows import Workflow, Parameter, WorkflowTemplateRef, Steps
+from hera.workflows import Workflow, Steps, Step, TemplateRef
 
 # Define configuration
 NOTEBOOK_PATH = "/Users/team/notebook"
 CLUSTER_MODE = "New"
 SPARK_VERSION = "13.3.x-scala2.12"
 
-with Workflow(generate_name="example-", namespace="default") as w:
+with Workflow(
+    generate_name="example-",
+    namespace="default",
+    entrypoint="main"
+) as w:
     with Steps(name="main"):
-        WorkflowTemplateRef(
+        Step(
             name="run-job",
-            template_ref="databricks-connector",
-            template="run-job",
-            arguments=[
-                Parameter(name="code-path", value=NOTEBOOK_PATH),
-                Parameter(name="cluster-mode", value=CLUSTER_MODE),
-                Parameter(name="new-cluster-spark-version", value=SPARK_VERSION),
-            ]
+            template_ref=TemplateRef(
+                name="databricks-connector",
+                template="run-job",
+                cluster_scope=False,
+            ),
+            arguments={
+                "code-path": NOTEBOOK_PATH,
+                "cluster-mode": CLUSTER_MODE,
+                "new-cluster-spark-version": SPARK_VERSION,
+            }
         )
 
 w.create()
@@ -205,38 +219,48 @@ w.create()
 ### Dynamic Parameter Generation
 
 ```python
-from hera.workflows import Workflow, Parameter, WorkflowTemplateRef, Steps
+from hera.workflows import Workflow, Steps, Step, TemplateRef
 
-def generate_cluster_params(env: str) -> list:
+def generate_cluster_params(env: str) -> dict:
     """Generate cluster parameters based on environment"""
     if env == "dev":
-        return [
-            Parameter(name="cluster-mode", value="Serverless"),
-        ]
+        return {
+            "cluster-mode": "Serverless",
+        }
     elif env == "prod":
-        return [
-            Parameter(name="cluster-mode", value="New"),
-            Parameter(name="new-cluster-spark-version", value="13.3.x-scala2.12"),
-            Parameter(name="new-cluster-node-type", value="i3.2xlarge"),
-            Parameter(name="scaling-type", value="autoscale"),
-            Parameter(name="min-workers", value="4"),
-            Parameter(name="max-workers", value="16"),
-        ]
-    return []
+        return {
+            "cluster-mode": "New",
+            "new-cluster-spark-version": "13.3.x-scala2.12",
+            "new-cluster-node-type": "i3.2xlarge",
+            "scaling-type": "autoscale",
+            "min-workers": "4",
+            "max-workers": "16",
+        }
+    return {}
 
 environment = "prod"
 
-with Workflow(generate_name=f"{environment}-job-", namespace="default") as w:
+with Workflow(
+    generate_name=f"{environment}-job-",
+    namespace="default",
+    entrypoint="main"
+) as w:
     with Steps(name="main"):
-        base_params = [
-            Parameter(name="code-path", value="/Users/team/notebook"),
-        ]
+        base_params = {
+            "code-path": "/Users/team/notebook",
+        }
         
-        WorkflowTemplateRef(
+        # Merge dictionaries
+        all_params = {**base_params, **generate_cluster_params(environment)}
+        
+        Step(
             name="run-job",
-            template_ref="databricks-connector",
-            template="run-job",
-            arguments=base_params + generate_cluster_params(environment)
+            template_ref=TemplateRef(
+                name="databricks-connector",
+                template="run-job",
+                cluster_scope=False,
+            ),
+            arguments=all_params
         )
 
 w.create()
