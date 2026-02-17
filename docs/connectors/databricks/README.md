@@ -91,10 +91,3 @@ spec:
 ```
 
 [→ See More Examples](yaml-examples.md)
-
-## Installation
-
-### WorkflowTemplate (Namespace-Scoped)
-
-```bash
-kubectl
