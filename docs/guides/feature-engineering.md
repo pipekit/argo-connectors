@@ -169,7 +169,8 @@ customer_features = df_recent.groupBy("customer_id").agg(
 customer_features = customer_features.withColumn(
     "avg_days_between_purchases",
     F.datediff(F.col("last_transaction_date"), F.col("first_transaction_date")) / 
-    F.col("transaction_count")
+    F.when(F.col("transaction_count") > 1, F.col("transaction_count") - 1).otherwise(F.lit(None))
+)
 ).withColumn(
     "days_since_last_purchase",
     F.datediff(F.current_date(), F.col("last_transaction_date"))
