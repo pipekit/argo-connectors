@@ -1122,7 +1122,7 @@ spec:
 **Volumes** (large files, parallel access):
 - Intermediate datasets shared across parallel workers
 - Model checkpoints during distributed training
-- Large files that multiple steps needto read
+- Large files that multiple steps need to read
 
 **Artifacts** (sequential, moderate size):
 - Model files (1-10GB)
