@@ -396,6 +396,9 @@ print(f"Total records after merge: {df_merged.count():,}")
 
 # COMMAND ----------
 # Write back
+# Only overwrite the specific partition(s) being written
+spark.conf.set("spark.sql.sources.partitionOverwriteMode", "dynamic")
+
 (df_merged.write
     .mode("overwrite")
     .partitionBy("date")
