@@ -885,8 +885,9 @@ To use the volume pattern, you need an NFS provisioner in your cluster:
 
 ```bash
 # Install nfs-server-provisioner
-helm repo add stable https://charts.helm.sh/stable
-helm install nfs-provisioner stable/nfs-server-provisioner \
+helm repo add nfs-ganesha-server-and-external-provisioner \
+  https://kubernetes-sigs.github.io/nfs-ganesha-server-and-external-provisioner/
+helm install nfs-provisioner nfs-ganesha-server-and-external-provisioner/nfs-server-provisioner \
   --set persistence.enabled=true \
   --set persistence.size=200Gi \
   --set storageClass.name=nfs
