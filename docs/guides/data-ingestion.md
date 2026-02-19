@@ -116,12 +116,17 @@ spec:
 # Databricks notebook: /Users/data-team/csv-to-parquet
 
 # COMMAND ----------
-# Get parameters
-dbutils.widgets.text("source_path", "")
-dbutils.widgets.text("target_path", "")
+# Get parameters from workflow args (comma-separated positional args)
+import sys
 
-source_path = dbutils.widgets.get("source_path")
-target_path = dbutils.widgets.get("target_path")
+# Databricks passes args through sys.argv or we can use a widget
+dbutils.widgets.text("args", "")
+args_string = dbutils.widgets.get("args")
+
+# Parse comma-separated arguments
+args = args_string.split(",") if args_string else []
+source_path = args[0] if len(args) > 0 else ""
+target_path = args[1] if len(args) > 1 else ""
 
 print(f"Source: {source_path}")
 print(f"Target: {target_path}")
@@ -363,8 +368,12 @@ spec:
 # Databricks notebook: /Users/data-team/incremental-load
 
 # COMMAND ----------
-dbutils.widgets.text("load_date", "")
-load_date = dbutils.widgets.get("load_date")
+# Get parameters from workflow args (positional argument)
+dbutils.widgets.text("args", "")
+args_string = dbutils.widgets.get("args")
+
+# Parse the date from args (first positional argument)
+load_date = args_string.strip() if args_string else ""
 
 print(f"Loading data for: {load_date}")
 
