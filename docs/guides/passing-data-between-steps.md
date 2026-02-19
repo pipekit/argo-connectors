@@ -405,8 +405,7 @@ from hera.workflows import (
     Step,
     TemplateRef,
     script,
-    Artifact,
-    S3Artifact
+    Artifact
 )
 
 with Workflow(
