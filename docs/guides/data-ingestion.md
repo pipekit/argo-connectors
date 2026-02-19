@@ -387,7 +387,7 @@ except:
 
 # COMMAND ----------
 # Merge and deduplicate
-if df_existing:
+if df_existing is not None:
     df_merged = df_new.union(df_existing).dropDuplicates(["id"])
 else:
     df_merged = df_new
