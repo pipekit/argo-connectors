@@ -401,7 +401,27 @@ spec:
                   value: "2"
                 - name: args
                   value: "{{workflow.parameters.training-data}},200,15"
-```
+          
+          - name: train-config-2
+            templateRef:
+              name: databricks-connector
+              template: run-job
+            arguments:
+              parameters:
+                - name: code-path
+                  value: "/Users/ml-team/train-with-config"
+                - name: task-type
+                  value: "notebook"
+                - name: cluster-mode
+                  value: "New"
+                - name: new-cluster-spark-version
+                  value: "13.3.x-scala2.12"
+                - name: new-cluster-node-type
+                  value: "r5.2xlarge"
+                - name: new-cluster-num-workers
+                  value: "2"
+                - name: args
+                  value: "{{workflow.parameters.training-data}},300,20"
 {% endtab %}
 {% endtabs %}
 
