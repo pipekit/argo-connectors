@@ -32,7 +32,7 @@ Train machine learning models at scale with distributed compute.
 **Coming soon**: PyTorch, TensorFlow, Ray connectors
 
 ### [Batch Inference](batch-inference.md)
-Score large datasets with traine models in production.
+Score large datasets with trained models in production.
 
 **Connectors used**: Databricks, Spark
 
