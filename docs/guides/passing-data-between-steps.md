@@ -16,7 +16,7 @@ Connectors expose output parameters that subsequent steps can reference.
 
 ### Databricks Connector Outputs
 
-The Databricks connector provides these outputs:
+The Databricks connector provides these output parameters:
 
 | Output | Description | Example |
 |--------|-------------|---------|
