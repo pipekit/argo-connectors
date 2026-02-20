@@ -1105,13 +1105,7 @@ spec:
 
 ## Best Practices
 
-### 1. Use Parameters for Metadata
-- Job IDs, URLs, status codes
-- File paths, S3 URIs
-- Configuration values
-- Small result sets
-
-### 2. Choose the Right Data Passing Method
+### 1. Choose the Right Data Passing Method
 
 **Parameters** (< 1MB):
 - Job IDs, URLs, status codes
@@ -1135,14 +1129,14 @@ spec:
 - Production predictions
 - Data lakes
 
-### 3. Design for Failure
+### 2. Design for Failure
 Make steps idempotent - they should produce the same result if re-run:
 ```python
 # Use overwrite mode
 df.write.mode("overwrite").parquet(path)
 ```
 
-### 4. Document Data Contracts
+### 3. Document Data Contracts
 Clearly define what each step outputs:
 ```python
 # In your notebook
@@ -1153,7 +1147,7 @@ Outputs:
 """
 ```
 
-### 5. Consider Cost vs Performance
+### 4. Consider Cost vs Performance
 
 **Volumes (NFS/EFS)**:
 - Faster for large files
