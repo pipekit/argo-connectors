@@ -422,6 +422,7 @@ spec:
                   value: "2"
                 - name: args
                   value: "{{workflow.parameters.training-data}},300,20"
+```
 {% endtab %}
 {% endtabs %}
 
