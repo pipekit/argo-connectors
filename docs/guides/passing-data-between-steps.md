@@ -28,7 +28,7 @@ The Databricks connector provides these output parameters:
 
 ### Spark Connector Outputs
 
-The Spark connector provides:
+The Spark connector provides these output parameters:
 
 | Output | Description | Example |
 |--------|-------------|---------|
