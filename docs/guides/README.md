@@ -17,7 +17,7 @@ These guides demonstrate real-world ML workflows using the available connectors 
 ### [Data Ingestion](data-ingestion.md)
 Build data ingestion pipelines to load, validate, and prepare raw data for processing.
 
-**Connectors used**: Databricks, Spark
+**Connectors used**: Databricks
 
 ### [Feature Engineering](feature-engineering.md)
 Create scalable feature engineering pipelines for ML model training.
