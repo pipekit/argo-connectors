@@ -22,7 +22,7 @@ Build data ingestion pipelines to load, validate, and prepare raw data for proce
 ### [Feature Engineering](feature-engineering.md)
 Create scalable feature engineering pipelines for ML model training.
 
-**Connectors used**: Databricks, Spark
+**Connectors used**: Databricks
 
 ### [Model Training](model-training.md)
 Train machine learning models at scale with distributed compute.
