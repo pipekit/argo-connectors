@@ -34,7 +34,7 @@ Train machine learning models at scale with distributed compute.
 ### [Batch Inference](batch-inference.md)
 Score large datasets with trained models in production.
 
-**Connectors used**: Databricks, Spark
+**Connectors used**: Databricks
 
 ### [Multi-Step Pipelines](multi-step-pipelines.md)
 Build end-to-end ML pipelines by chaining multiple connectors together.
